@@ -8,13 +8,13 @@
         "plugin:@nrwl/nx/angular",
         "plugin:@angular-eslint/template/process-inline-templates"
       ],
-      "parserOptions": { "project": ["apps/skysteel-tools/tsconfig.*?.json"] },
+      "parserOptions": { "project": ["libs/models/tsconfig.*?.json"] },
       "rules": {
         "@angular-eslint/directive-selector": [
           "error",
           {
             "type": "attribute",
-            "prefix": "skysteel-tools",
+            "prefix": "skysteelTools",
             "style": "camelCase"
           }
         ],
@@ -25,8 +25,7 @@
             "prefix": "skysteel-tools",
             "style": "kebab-case"
           }
-        ],
-        "@typescript-eslint/no-explicit-any": "off"
+        ]
       }
     },
     {

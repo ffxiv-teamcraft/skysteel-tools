@@ -1,0 +1,20 @@
+<div class="explorer-container" fxLayout="column">
+  <nz-page-header nzTitle="Explorer"></nz-page-header>
+  <div fxLayout="row" class="explorer-view" fxFlex="1 1 auto">
+    <div fxLayout="column" fxFlex="0 0 300px">
+      <input nz-input type="text" [ngModel]="''" (ngModelChange)="sheetFilter$.next($event)" placeholder="Search for a definition...">
+      <div fxLayout="column" fxFlex="1 1 auto" class="definition-list">
+        <div class="definition-list-row" [class.selected]="definition.selected"
+             *ngFor="let definition of definitionsList$ | async" (click)="selectDefinition(definition.sheet)">
+          {{definition.sheet}}
+        </div>
+      </div>
+    </div>
+    <div fxFlex="1 1 auto" class="definition-display">
+      <pre *ngIf="selectedDefinition$ | async as definition; else noDefinitionSelected">{{definition | json}}</pre>
+      <ng-template #noDefinitionSelected>
+        <nz-empty nzNotFoundContent="No selected definition"></nz-empty>
+      </ng-template>
+    </div>
+  </div>
+</div>

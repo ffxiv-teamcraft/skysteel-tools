@@ -1,0 +1,24 @@
+{
+  "compileOnSave": false,
+  "extends": "../../tsconfig.node.json",
+  "compilerOptions": {
+    "outDir": "../../dist",
+    "target": "ES5",
+    "importHelpers": true,
+    "module": "CommonJS",
+    "sourceMap": true,
+    "declaration": false,
+    "moduleResolution": "node",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "downlevelIteration": true,
+    "typeRoots": [
+      "node_modules/@types"
+    ]
+  },
+  "exclude": ["**/*.spec.ts"],
+  "include": ["**/*.ts"],
+  "files": [
+    "src/main.ts"
+  ]
+}

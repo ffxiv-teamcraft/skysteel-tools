@@ -1,6 +1,7 @@
 {
   "version": 1,
   "cli": {
+    "analytics": false,
     "defaultCollection": "@nrwl/angular"
   },
   "defaultProject": "skysteel-tools",
@@ -29,6 +30,12 @@
     },
     "@nrwl/angular:component": {
       "style": "less"
+    },
+    "@schematics/angular:component": {
+      "prefix": "skysteel-tools",
+      "style": "less",
+      "changeDetection": "OnPush",
+      "skipTests": true
     }
   },
   "projects": {
@@ -47,11 +54,19 @@
             "polyfills": "apps/skysteel-tools/src/polyfills.ts",
             "tsConfig": "apps/skysteel-tools/tsconfig.app.json",
             "aot": true,
+            "baseHref": "",
             "assets": [
               "apps/skysteel-tools/src/favicon.ico",
-              "apps/skysteel-tools/src/assets"
+              "apps/skysteel-tools/src/assets",
+              {
+                "glob": "**/*",
+                "input": "./node_modules/@ant-design/icons-angular/src/inline-svg/",
+                "output": "/assets/"
+              }
             ],
-            "styles": ["apps/skysteel-tools/src/styles.less"],
+            "styles": [
+              "apps/skysteel-tools/src/styles.less"
+            ],
             "scripts": []
           },
           "configurations": {
@@ -84,23 +99,6 @@
             }
           }
         },
-        "serve": {
-          "builder": "@angular-devkit/build-angular:dev-server",
-          "options": {
-            "browserTarget": "skysteel-tools:build"
-          },
-          "configurations": {
-            "production": {
-              "browserTarget": "skysteel-tools:build:production"
-            }
-          }
-        },
-        "extract-i18n": {
-          "builder": "@angular-devkit/build-angular:extract-i18n",
-          "options": {
-            "browserTarget": "skysteel-tools:build"
-          }
-        },
         "lint": {
           "builder": "@nrwl/linter:eslint",
           "options": {
@@ -112,7 +110,9 @@
         },
         "test": {
           "builder": "@nrwl/jest:jest",
-          "outputs": ["coverage/apps/skysteel-tools"],
+          "outputs": [
+            "coverage/apps/skysteel-tools"
+          ],
           "options": {
             "jestConfig": "apps/skysteel-tools/jest.config.js",
             "passWithNoTests": true
@@ -120,28 +120,29 @@
         }
       }
     },
-    "skysteel-tools-e2e": {
-      "root": "apps/skysteel-tools-e2e",
-      "sourceRoot": "apps/skysteel-tools-e2e/src",
-      "projectType": "application",
+    "models": {
+      "projectType": "library",
+      "root": "libs/models",
+      "sourceRoot": "libs/models/src",
+      "prefix": "skysteel-tools",
       "architect": {
-        "e2e": {
-          "builder": "@nrwl/cypress:cypress",
-          "options": {
-            "cypressConfig": "apps/skysteel-tools-e2e/cypress.json",
-            "tsConfig": "apps/skysteel-tools-e2e/tsconfig.e2e.json",
-            "devServerTarget": "skysteel-tools:serve"
-          },
-          "configurations": {
-            "production": {
-              "devServerTarget": "skysteel-tools:serve:production"
-            }
-          }
-        },
         "lint": {
           "builder": "@nrwl/linter:eslint",
           "options": {
-            "lintFilePatterns": ["apps/skysteel-tools-e2e/**/*.{js,ts}"]
+            "lintFilePatterns": [
+              "libs/models/src/**/*.ts",
+              "libs/models/src/**/*.html"
+            ]
+          }
+        },
+        "test": {
+          "builder": "@nrwl/jest:jest",
+          "outputs": [
+            "coverage/libs/models"
+          ],
+          "options": {
+            "jestConfig": "libs/models/jest.config.js",
+            "passWithNoTests": true
           }
         }
       }
