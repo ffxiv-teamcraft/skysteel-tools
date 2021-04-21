@@ -6,7 +6,7 @@ export class KoboldService {
 
   constructor(private ipc: IpcService, private kobold: Kobold) {
     // this.ipc.on('kobold:sheet:get', (event, sheetName) => {
-    //   event.sender.send('kobold:sheet', this.getDefinition(sheetName));
+    //   event.sender.send('kobold:sheet', this.getSheetData(sheetName));
     // });
     this.ipc.on('kobold:sheet:list:get', async (event) => {
       event.sender.send('kobold:sheet:list', await this.getSheetsList());
