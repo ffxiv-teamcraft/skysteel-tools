@@ -2,11 +2,19 @@ import { createAction, props } from '@ngrx/store';
 import { SaintDefinition } from '@skysteel-tools/models';
 
 export const loadDefinitionsList = createAction(
-  '[Saint] Load DefinitionsList');
+  '[Saint] Load Definitions List');
 
 export const definitionsListLoaded = createAction(
-  '[Saint] DefinitionsList Loaded',
+  '[Saint] Definitions List Loaded',
   props<{ list: string[] }>()
+);
+
+export const loadAllDefinitions = createAction(
+  '[Saint] Load All Definitions');
+
+export const allDefinitionsLoaded = createAction(
+  '[Saint] All Definitions Loaded',
+  props<{ definitions: SaintDefinition[] }>()
 );
 
 export const loadDefinition = createAction(

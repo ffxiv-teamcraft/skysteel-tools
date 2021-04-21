@@ -26,6 +26,19 @@ export class SaintFacade {
   constructor(private store: Store) {
   }
 
+  public shiftColumn(definition: SaintDefinition, index: number, distance: number): SaintDefinition {
+    return {
+      ...definition,
+      definitions: definition.definitions.map((column) => {
+        const clone = JSON.parse(JSON.stringify(column));
+        if (clone.index >= index) {
+          clone.index += distance;
+        }
+        return clone;
+      })
+    };
+  }
+
   public loadDefinitionsList(): void {
     this.store.dispatch(SaintActions.loadDefinitionsList());
   }
@@ -44,6 +57,10 @@ export class SaintFacade {
 
   public updateDefinition(definition: SaintDefinition): void {
     this.store.dispatch(SaintActions.updateDefinition({ definition }));
+  }
+
+  public loadAllDefinitions(): void {
+    this.store.dispatch(SaintActions.loadAllDefinitions());
   }
 
   public deleteDefinition(sheetName: string): void {

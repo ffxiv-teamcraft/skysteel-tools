@@ -23,6 +23,10 @@ export const initialState: State = {
 const saintReducer = createReducer(
   initialState,
   on(SaintActions.definitionsListLoaded, (state, { list }) => ({ ...state, availableDefinitions: list })),
+  on(SaintActions.allDefinitionsLoaded, (state, { definitions }) => ({
+    ...state,
+    loadedDefinitions: definitions.reduce((acc, definition) => ({ ...acc, [definition.sheet]: definition }), {})
+  })),
   on(SaintActions.selectDefinition, (state, { sheetName }) => ({ ...state, selectedDefinition: sheetName })),
   on(SaintActions.definitionLoaded, (state, { definition }) => ({
     ...state,

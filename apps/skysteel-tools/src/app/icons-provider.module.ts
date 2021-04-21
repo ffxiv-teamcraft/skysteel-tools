@@ -1,9 +1,9 @@
 import { NgModule } from '@angular/core';
 import { NZ_ICONS, NzIconModule } from 'ng-zorro-antd/icon';
 
-import { DatabaseOutline } from '@ant-design/icons-angular/icons';
+import { DeleteOutline, EditOutline, FileAddOutline, InboxOutline, SwapOutline } from '@ant-design/icons-angular/icons';
 
-const icons = [DatabaseOutline];
+const icons = [EditOutline, SwapOutline, InboxOutline, DeleteOutline, FileAddOutline];
 
 @NgModule({
   imports: [NzIconModule],

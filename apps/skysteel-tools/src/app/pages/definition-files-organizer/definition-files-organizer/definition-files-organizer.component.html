@@ -1,0 +1,48 @@
+<nz-page-header nzTitle="Definition files organizer" (nzBack)="back()"></nz-page-header>
+<div fxLayout="column" fxLayoutGap="20px">
+  <nz-card [nzTitle]="titleRef" [nzExtra]="addAllRef" *ngIf="missingDefinitions$ | async as missingDefinitions">
+    <ng-template #titleRef>
+      Sheets without a definition file ({{missingDefinitions.length}})
+    </ng-template>
+    <ng-template #addAllRef>
+      <button nz-button nzType="primary" (click)="createAllDefinitions(missingDefinitions)">
+        <i nz-icon nzType="file-add" nzTheme="outline"></i> Create all missing definitions
+      </button>
+    </ng-template>
+    <div fxLayout="column" class="sheets-list">
+      <nz-empty *ngIf="missingDefinitions.length === 0" nzNotFoundContent="No missing definitions"></nz-empty>
+      <div *ngFor="let definition of missingDefinitions; odd as odd" fxLayout="row" fxLayoutAlign="space-between center"
+           class="list-row" [class.odd]="odd">
+        <div>{{definition}}</div>
+        <div>
+          <button nz-button nzType="primary" nzShape="circle" (click)="createDefinition(definition)">
+            <i nz-icon nzType="file-add" nzTheme="outline"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </nz-card>
+
+  <nz-card [nzTitle]="titleRef" [nzExtra]="deleteAllRef" *ngIf="missingSheets$ | async as missingSheets">
+    <ng-template #titleRef>
+      Definition files for missing sheets ({{missingSheets.length}})
+    </ng-template>
+    <ng-template #deleteAllRef>
+      <button nz-button nzDanger (click)="deleteAllDefinitions(missingSheets)">
+        <i nz-icon nzType="delete" nzTheme="outline"></i> Delete all definitions for missing sheets
+      </button>
+    </ng-template>
+    <div fxLayout="column" class="sheets-list">
+      <nz-empty *ngIf="missingSheets.length === 0" nzNotFoundContent="No missing sheets"></nz-empty>
+      <div *ngFor="let sheet of missingSheets; odd as odd" fxLayout="row" fxLayoutAlign="space-between center"
+           class="list-row" [class.odd]="odd">
+        <div>{{sheet}}</div>
+        <div>
+          <button nz-button nzDanger nzShape="circle" (click)="deleteDefinition(sheet)">
+            <i nz-icon nzType="delete" nzTheme="outline"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </nz-card>
+</div>

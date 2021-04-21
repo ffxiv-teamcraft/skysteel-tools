@@ -2,17 +2,21 @@
   <nz-sider class="menu-sidebar"
             nzCollapsible
             nzWidth="256px"
-            nzBreakpoint="md"
             [(nzCollapsed)]="isCollapsed">
     <div class="sidebar-logo">
       <img src="./assets/logo.png" alt="logo">
       <h1>Skysteel Tools</h1>
     </div>
     <ul nz-menu nzTheme="dark" nzMode="inline" [nzInlineCollapsed]="isCollapsed">
-      <li nz-menu-item routerLink="/explorer"
+      <li nz-menu-item routerLink="/editor"
           routerLinkActive="ant-menu-item-selected">
-        <i nz-icon nzType="database" nzTheme="outline"></i>
-        <span>Explorer</span>
+        <i nz-icon nzType="edit" nzTheme="outline"></i>
+        <span>Editor</span>
+      </li>
+      <li nz-menu-item routerLink="/definitions-organizer"
+          routerLinkActive="ant-menu-item-selected">
+        <i nz-icon nzType="inbox" nzTheme="outline"></i>
+        <span>Definitions organizer</span>
       </li>
     </ul>
   </nz-sider>

@@ -45,6 +45,20 @@ export class IpcService {
     });
   }
 
+  /**
+   * Gets data outside of ng zone, faster but not safe for change detector iterations
+   * @param channel
+   * @param args
+   */
+  public getDataFast<T = unknown>(channel: string, ...args: any[]): Observable<T> {
+    const response$ = new ReplaySubject<T>();
+    this._ipc.on(`${channel}`, (e, data) => {
+      response$.next(data);
+    });
+    this._ipc.send(`${channel}:get`, ...args);
+    return response$;
+  }
+
   public on<T>(channel: string, cb: EventCallback<T>): void {
     if (this.ready) {
       this._ipc.on(channel, (event, ...args) => {

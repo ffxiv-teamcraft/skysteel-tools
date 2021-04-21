@@ -1,0 +1,30 @@
+<form nz-form (ngSubmit)="submit()">
+  <nz-form-item>
+    <nz-form-label [nzSpan]="5" nzRequired nzFor="column">Column</nz-form-label>
+    <nz-form-control [nzSpan]="12" nzErrorTip="Please select a column to shift !">
+      <nz-select
+        id="column"
+        name="column"
+        nzPlaceHolder="Select a column to shift"
+        [(ngModel)]="columnIndex">
+        <ng-container *ngFor="let column of definition.definitions">
+          <nz-option *ngIf="column.index !== undefined" [nzValue]="column.index"
+                     [nzLabel]="column.name || column.index"></nz-option>
+        </ng-container>
+      </nz-select>
+    </nz-form-control>
+  </nz-form-item>
+  <nz-form-item>
+    <nz-form-label [nzSpan]="5" nzFor="distance" nzRequired>Distance</nz-form-label>
+    <nz-form-control [nzSpan]="12" nzErrorTip="Please input a distance !"
+                     nzExtra="if value is > 0, it'll go to the right, else it'll go to the left">
+      <input id="distance" type="number" nz-input name="distance"
+             [(ngModel)]="distance" />
+    </nz-form-control>
+  </nz-form-item>
+  <nz-form-item>
+    <nz-form-control [nzSpan]="12" [nzOffset]="5">
+      <button nz-button nzType="primary" [disabled]="columnIndex + distance < 0">Apply</button>
+    </nz-form-control>
+  </nz-form-item>
+</form>

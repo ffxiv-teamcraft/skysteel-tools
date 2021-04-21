@@ -1,3 +1,10 @@
+:host ::ng-deep json-editor,
+:host ::ng-deep json-editor .jsoneditor,
+:host ::ng-deep json-editor > div,
+:host ::ng-deep json-editor jsoneditor-outer {
+  height: 100%;
+}
+
 .explorer-container {
   max-height: 100%;
   overflow: hidden;
@@ -26,5 +33,14 @@
   .definition-display {
     padding: 10px;
     overflow: auto;
+  }
+
+  .editor-container {
+    height: 100%;
+  }
+
+  .editor-topbar {
+    padding: 5px;
+    background-color: #1890ff;
   }
 }

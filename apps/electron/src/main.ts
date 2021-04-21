@@ -1,26 +1,22 @@
 import { Store } from './store';
 import { buildKoboldXIV } from '@kobold/xiv';
-import { Excel, Row } from '@kobold/excel';
 import { SaintService } from './saint.service';
 import { IpcService } from './service/ipc.service';
 import { app, BrowserWindow, BrowserWindowConstructorOptions } from 'electron';
 import { join } from 'path';
-
-
-function buildSheet(sheetName: string) {
-  return class extends Row {
-    static sheet = sheetName;
-  };
-}
+import { Kobold } from '@kobold/core';
+import { KoboldService } from './kobold.service';
 
 const BASE_APP_PATH = join(__dirname, '../../skysteel-tools');
 
-function createWindow() {
+function createWindow(kobold: Kobold) {
 
   //Prepare all the managers
   const store = new Store();
   const ipc = new IpcService(store);
-  const saint = new SaintService(ipc, store);
+  new SaintService(ipc, store);
+  new KoboldService(ipc, kobold);
+
 
   const opts: BrowserWindowConstructorOptions = {
     show: false,
@@ -67,15 +63,12 @@ function createWindow() {
 
 async function start() {
   const kobold = await buildKoboldXIV();
-  const excel = new Excel({ kobold });
-  //TODO
-
   app.whenReady().then(() => {
-    createWindow();
+    createWindow(kobold);
 
     app.on('activate', () => {
       if (BrowserWindow.getAllWindows().length === 0) {
-        createWindow();
+        createWindow(kobold);
       }
     });
   });
