@@ -22,7 +22,11 @@ export const initialState: State = {
 const koboldReducer = createReducer(
   initialState,
   on(KoboldActions.sheetsListLoaded, (state, { list }) => ({ ...state, availableSheets: list })),
-  on(KoboldActions.selectSheet, (state, { sheetName }) => ({ ...state, selectedSheet: sheetName }))
+  on(KoboldActions.selectSheet, (state, { sheetName }) => ({ ...state, selectedSheet: sheetName })),
+  on(KoboldActions.sheetLoaded, (state, { sheetName, sheet }) => ({
+    ...state,
+    loadedSheets: { ...state.loadedSheets, [sheetName]: sheet }
+  }))
 );
 
 export function reducer(state: State | undefined, action: Action) {

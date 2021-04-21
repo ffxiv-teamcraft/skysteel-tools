@@ -3,7 +3,7 @@
   "extends": "../../tsconfig.node.json",
   "compilerOptions": {
     "outDir": "../../dist",
-    "target": "ES5",
+    "target": "ES6",
     "importHelpers": true,
     "module": "CommonJS",
     "sourceMap": true,

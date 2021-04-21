@@ -15,7 +15,7 @@ export const loadSheet = createAction(
 
 export const sheetLoaded = createAction(
   '[Kobold] Sheet Loaded',
-  props<{ definition: any }>()
+  props<{ sheetName: string, sheet: any }>()
 );
 
 export const selectSheet = createAction(

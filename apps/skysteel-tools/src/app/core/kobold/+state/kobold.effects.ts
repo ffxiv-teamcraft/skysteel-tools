@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import * as KoboldActions from './kobold.actions';
-import { map, switchMap } from 'rxjs/operators';
+import { first, map, switchMap } from 'rxjs/operators';
 import { IpcService } from '../../ipc.service';
 
 @Injectable()
@@ -15,6 +15,20 @@ export class KoboldEffects {
       }),
       map((list) => {
         return KoboldActions.sheetsListLoaded({ list });
+      })
+    )
+  );
+
+  loadSheetList$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(KoboldActions.loadSheet),
+      switchMap(({ sheetName }) => {
+        return this.ipc.getData<string[]>('kobold:sheet', sheetName).pipe(
+          first(),
+          map((sheet) => {
+            return KoboldActions.sheetLoaded({ sheetName, sheet });
+          })
+        );
       })
     )
   );

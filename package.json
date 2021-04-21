@@ -44,7 +44,7 @@
     "@angular/platform-browser-dynamic": "^11.2.0",
     "@angular/router": "^11.2.0",
     "@kobold/core": "^0.0.1",
-    "@kobold/excel": "^0.0.2",
+    "@kobold/excel": "file:.yalc/@kobold/excel",
     "@kobold/xiv": "^0.0.2",
     "@ngrx/component-store": "^11.0.0",
     "@ngrx/effects": "^11.0.0",
