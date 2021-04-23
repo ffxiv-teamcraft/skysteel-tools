@@ -8,6 +8,11 @@
       <h1>Skysteel Tools</h1>
     </div>
     <ul nz-menu nzTheme="dark" nzMode="inline" [nzInlineCollapsed]="isCollapsed">
+      <li nz-menu-item routerLink="/explorer"
+          routerLinkActive="ant-menu-item-selected">
+        <i nz-icon nzType="file-search" nzTheme="outline"></i>
+        <span>Explorer</span>
+      </li>
       <li nz-menu-item routerLink="/editor"
           routerLinkActive="ant-menu-item-selected">
         <i nz-icon nzType="edit" nzTheme="outline"></i>
@@ -18,9 +23,14 @@
         <i nz-icon nzType="inbox" nzTheme="outline"></i>
         <span>Definitions organizer</span>
       </li>
+      <li nz-menu-item routerLink="/patch-diff"
+          routerLinkActive="ant-menu-item-selected">
+        <i nz-icon nzType="diff" nzTheme="outline"></i>
+        <span>Patch diff</span>
+      </li>
     </ul>
   </nz-sider>
-  <nz-layout>
+  <nz-layout class="scroll-content">
     <nz-content>
       <div class="inner-content">
         <router-outlet></router-outlet>

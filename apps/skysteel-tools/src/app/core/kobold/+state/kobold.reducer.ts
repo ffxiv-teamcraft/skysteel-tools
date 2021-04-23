@@ -26,6 +26,10 @@ const koboldReducer = createReducer(
   on(KoboldActions.sheetLoaded, (state, { sheetName, sheet }) => ({
     ...state,
     loadedSheets: { ...state.loadedSheets, [sheetName]: sheet }
+  })),
+  on(KoboldActions.allSheetsLoaded, (state, { sheets }) => ({
+    ...state,
+    loadedSheets: sheets.reduce((acc, sheet) => ({ ...acc, [sheet.name]: sheet.data }), {})
   }))
 );
 

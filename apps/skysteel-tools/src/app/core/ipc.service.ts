@@ -35,7 +35,7 @@ export class IpcService {
   public getData<T = unknown>(channel: string, ...args: any[]): Observable<T> {
     return this.zone.run(() => {
       const response$ = new ReplaySubject<T>();
-      this._ipc.on(`${channel}`, (e, data) => {
+      this._ipc.on(`${channel}(${args.join(',')})`, (e, data) => {
         this.zone.run(() => {
           response$.next(data);
         });
@@ -52,8 +52,9 @@ export class IpcService {
    */
   public getDataFast<T = unknown>(channel: string, ...args: any[]): Observable<T> {
     const response$ = new ReplaySubject<T>();
-    this._ipc.on(`${channel}`, (e, data) => {
+    this._ipc.once(`${channel}(${args.join(',')})`, (e, data) => {
       response$.next(data);
+      response$.complete();
     });
     this._ipc.send(`${channel}:get`, ...args);
     return response$;

@@ -8,7 +8,6 @@ import { IndexShiftParamsComponent } from '../index-shift-params/index-shift-par
 import { ActivatedRoute } from '@angular/router';
 import { AbstractPageComponent } from '../../../core/abstract-page-component';
 import { SaintFacade } from '../../../core/saint/+state/saint.facade';
-import { KoboldFacade } from '../../../core/kobold/+state/kobold.facade';
 
 @Component({
   selector: 'skysteel-tools-editor',
@@ -17,27 +16,12 @@ import { KoboldFacade } from '../../../core/kobold/+state/kobold.facade';
 })
 export class EditorComponent extends AbstractPageComponent {
 
-  public sheetFilter$ = new BehaviorSubject('');
-
-  public definitionsList$ = combineLatest([this.saint.availableDefinitions$, this.saint.selectedDefinition$, this.sheetFilter$]).pipe(
-    map(([definitions, selectedDefinition, filter]) => {
-      return definitions
-        .filter(definition => definition.toLowerCase().includes(filter.toLowerCase()))
-        .map(definition => {
-          return {
-            sheet: definition,
-            selected: selectedDefinition?.sheet === definition
-          };
-        });
-    })
-  );
-
   public selectedDefinition$ = this.saint.selectedDefinition$;
 
   public editorOptions: JsonEditorOptions;
 
   constructor(private saint: SaintFacade, private modal: NzModalService,
-              private route: ActivatedRoute, private kobold: KoboldFacade) {
+              private route: ActivatedRoute) {
     super();
     this.route.paramMap.pipe(
       takeUntil(this.onDestroy$)
@@ -47,7 +31,6 @@ export class EditorComponent extends AbstractPageComponent {
         this.selectDefinition(sheetName);
       }
     });
-    this.saint.loadDefinitionsList();
     this.editorOptions = new JsonEditorOptions();
     this.editorOptions.mode = 'code';
     this.editorOptions.onValidate = (json: any) => {
@@ -74,7 +57,6 @@ export class EditorComponent extends AbstractPageComponent {
   public selectDefinition(definition: string): void {
     this.saint.loadDefinition(definition);
     this.saint.selectDefinition(definition);
-    this.kobold.loadSheet(definition);
   }
 
   public indexShift(definition: SaintDefinition): void {

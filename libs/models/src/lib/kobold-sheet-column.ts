@@ -1,4 +1,4 @@
-import { ColumnDataType } from '@kobold/excel/dist/files';
+import { ColumnDataType } from './column-data-type';
 
 export interface KoboldSheetColumnBoolean {
   type: ColumnDataType.BOOLEAN |

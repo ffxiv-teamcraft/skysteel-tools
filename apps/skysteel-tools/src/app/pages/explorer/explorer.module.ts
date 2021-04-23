@@ -1,39 +1,39 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ExplorerComponent } from './explorer/explorer.component';
 import { RouterModule, Routes } from '@angular/router';
+import { SaintModule } from '../../core/saint/saint.module';
+import { KoboldModule } from '../../core/kobold/kobold.module';
 import { FlexLayoutModule } from '@angular/flex-layout';
 import { NzEmptyModule } from 'ng-zorro-antd/empty';
 import { NzPageHeaderModule } from 'ng-zorro-antd/page-header';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
 import { NzInputModule } from 'ng-zorro-antd/input';
-import { NgJsonEditorModule } from 'ang-jsoneditor';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzIconModule } from 'ng-zorro-antd/icon';
-import { IndexShiftParamsComponent } from './index-shift-params/index-shift-params.component';
-import { NzModalModule } from 'ng-zorro-antd/modal';
 import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
-import { NzFormModule } from 'ng-zorro-antd/form';
-import { NzSelectModule } from 'ng-zorro-antd/select';
-import { EditorComponent } from './editor/editor.component';
-import { SaintModule } from '../../core/saint/saint.module';
-import { KoboldModule } from '../../core/kobold/kobold.module';
+import { NzTableModule } from 'ng-zorro-antd/table';
+import { NzDividerModule } from 'ng-zorro-antd/divider';
 import { SheetSelectorModule } from '../../modules/sheet-selector/sheet-selector.module';
 
 const routes: Routes = [
   {
     path: '',
-    component: EditorComponent
+    component: ExplorerComponent
   },
   {
     path: ':sheet',
-    component: EditorComponent
+    component: ExplorerComponent
+  },
+  {
+    path: ':sheet/:row',
+    component: ExplorerComponent
   }
 ];
 
 @NgModule({
   declarations: [
-    EditorComponent,
-    IndexShiftParamsComponent
+    ExplorerComponent
   ],
   imports: [
     CommonModule,
@@ -47,16 +47,13 @@ const routes: Routes = [
     NzPageHeaderModule,
     FormsModule,
     NzInputModule,
-    NgJsonEditorModule,
     NzButtonModule,
     NzIconModule,
-    NzModalModule,
     NzToolTipModule,
-    NzFormModule,
-    NzSelectModule,
-    ReactiveFormsModule,
+    NzTableModule,
+    NzDividerModule,
     SheetSelectorModule
   ]
 })
-export class EditorModule {
+export class ExplorerModule {
 }

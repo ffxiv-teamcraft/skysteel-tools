@@ -1,6 +1,6 @@
-import { IpcService } from './service/ipc.service';
+import { IpcService } from './ipc.service';
 import { Kobold } from '@kobold/core';
-import { KoboldSheetData } from '../../../libs/models/src/lib/kobold-sheet-data';
+import { KoboldSheetData } from '@skysteel-tools/models';
 import { Excel, Row } from '@kobold/excel';
 import { ExcelList } from '@kobold/excel/dist/files';
 
@@ -10,16 +10,16 @@ export class KoboldService {
 
   constructor(private ipc: IpcService, private kobold: Kobold) {
     this.excel = new Excel({ kobold });
-    this.ipc.on('kobold:sheet:get', async (event, sheetName) => {
-      event.sender.send('kobold:sheet', await this.getSheetData(sheetName));
+    this.ipc.on('kobold:sheet:get', async (event, ...args) => {
+      event.sender.send(`kobold:sheet(${args.join(',')})`, await this.getSheetData(args[0], args[1]));
     });
     this.ipc.on('kobold:sheet:list:get', async (event) => {
-      event.sender.send('kobold:sheet:list', await this.getSheetsList());
+      event.sender.send('kobold:sheet:list()', await this.getSheetsList());
     });
   }
 
   private buildSheet(sheetName: string) {
-    return class extends Row {
+    return class DynamicSheet extends Row {
       static sheet = sheetName;
       columns = new Array(this.columnsCount)
         .fill(null)
@@ -39,13 +39,18 @@ export class KoboldService {
     }
   }
 
-  private async getSheetData(sheetName: string): Promise<KoboldSheetData> {
+  private async getSheetData(sheetName: string, length = Infinity): Promise<KoboldSheetData> {
     try {
       const sheet = await this.excel.getSheet(this.buildSheet(sheetName));
       const rows = await sheet.getRows();
       const content = [];
+      let counter = 0;
       for await(const row of rows) {
         content.push({ index: row.index, subIndex: row.subIndex, columns: row.columns });
+        counter++;
+        if (counter >= length) {
+          break;
+        }
       }
       return { content };
     } catch (e) {

@@ -1,11 +1,12 @@
 import { Store } from './store';
 import { buildKoboldXIV } from '@kobold/xiv';
-import { SaintService } from './saint.service';
+import { SaintService } from './service/saint.service';
 import { IpcService } from './service/ipc.service';
 import { app, BrowserWindow, BrowserWindowConstructorOptions } from 'electron';
 import { join } from 'path';
 import { Kobold } from '@kobold/core';
-import { KoboldService } from './kobold.service';
+import { KoboldService } from './service/kobold.service';
+import { CsvService } from './service/csv.service';
 
 const BASE_APP_PATH = join(__dirname, '../../skysteel-tools');
 
@@ -16,6 +17,7 @@ function createWindow(kobold: Kobold) {
   const ipc = new IpcService(store);
   new SaintService(ipc, store);
   new KoboldService(ipc, kobold);
+  new CsvService(ipc, store);
 
 
   const opts: BrowserWindowConstructorOptions = {

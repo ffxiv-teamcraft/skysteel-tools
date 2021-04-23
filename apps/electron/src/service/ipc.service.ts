@@ -33,11 +33,11 @@ export class IpcService {
       if (onWrite) {
         this.tryCallback(e.sender, onWrite, value, e);
       }
-      e.sender.send(`${event}:value`, value);
+      e.sender.send(`${event}:value()`, value);
     });
 
     ipcMain.on(`${event}:get`, (e) => {
-      e.sender.send(`${event}:value`, this.store.get(storeFieldName, defaultValue));
+      e.sender.send(`${event}:value()`, this.store.get(storeFieldName, defaultValue));
     });
   }
 }

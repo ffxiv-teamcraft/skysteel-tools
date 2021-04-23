@@ -2,9 +2,9 @@ import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import * as SaintActions from './saint.actions';
 import { IpcService } from '../../ipc.service';
-import { first, map, switchMap } from 'rxjs/operators';
+import { bufferCount, first, map, switchMap } from 'rxjs/operators';
 import { SaintDefinition } from '@skysteel-tools/models';
-import { combineLatest } from 'rxjs';
+import { concat } from 'rxjs';
 
 @Injectable()
 export class SaintEffects {
@@ -40,9 +40,12 @@ export class SaintEffects {
         return this.ipc.getData<string[]>('saint:definitions:list').pipe(
           first(),
           switchMap((definitions) => {
-            return combineLatest(definitions.map(definition => {
+            return concat(...definitions.map(definition => {
               return this.ipc.getDataFast<SaintDefinition>('saint:definition', definition);
-            })).pipe(first());
+            })).pipe(
+              bufferCount(definitions.length),
+              first()
+            );
           })
         );
       }),

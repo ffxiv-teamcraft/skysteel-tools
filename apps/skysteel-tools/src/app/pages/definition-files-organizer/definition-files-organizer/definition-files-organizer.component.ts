@@ -17,7 +17,6 @@ export class DefinitionFilesOrganizerComponent extends AbstractPageComponent {
 
   public missingSheets$ = this.combinedSources$.pipe(
     map(([definitions, sheets]) => {
-      console.log(definitions, sheets);
       return definitions.filter(definition => !sheets.includes(definition));
     })
   );

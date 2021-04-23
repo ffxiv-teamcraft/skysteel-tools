@@ -1,0 +1,15 @@
+<div fxLayout="row" class="selector-view" fxFlex="1 1 auto">
+  <div fxLayout="column" fxFlex="0 0 300px">
+    <input nz-input type="text" [ngModel]="''" (ngModelChange)="sheetFilter$.next($event)"
+           placeholder="Search for a sheet...">
+    <div fxLayout="column" fxFlex="1 1 auto" class="definition-list">
+      <div class="definition-list-row" [class.selected]="definition.selected"
+           *ngFor="let definition of definitionsList$ | async" (click)="selectDefinition(definition.sheet)">
+        {{definition.sheet}}
+      </div>
+    </div>
+  </div>
+  <div fxFlex="1 1 auto" class="definition-display">
+    <ng-content></ng-content>
+  </div>
+</div>

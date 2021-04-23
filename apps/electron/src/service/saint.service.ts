@@ -1,8 +1,8 @@
 import { accessSync, readdirSync, readFileSync, unlinkSync, writeFileSync } from 'fs';
 import { extname, join } from 'path';
 import { SaintDefinition } from '@skysteel-tools/models';
-import { Store } from './store';
-import { IpcService } from './service/ipc.service';
+import { Store } from '../store';
+import { IpcService } from './ipc.service';
 
 export class SaintService {
 
@@ -17,14 +17,14 @@ export class SaintService {
       this.setDefinitionsDirectory(value);
     }, '');
     this.ipc.on('saint:definition:get', (event, sheetName) => {
-      event.sender.send('saint:definition', this.getDefinition(sheetName));
+      event.sender.send(`saint:definition(${sheetName})`, this.getDefinition(sheetName));
     });
     this.ipc.on('saint:definition:create', (event, sheetName) => {
-      event.sender.send('saint:definition', this.createDefinition(sheetName));
+      event.sender.send(`saint:definition(${sheetName})`, this.createDefinition(sheetName));
       event.sender.send('saint:definitions:list', this.getDefinitionsList());
     });
     this.ipc.on('saint:definitions:list:get', (event) => {
-      event.sender.send('saint:definitions:list', this.getDefinitionsList());
+      event.sender.send('saint:definitions:list()', this.getDefinitionsList());
     });
     this.ipc.on('saint:definition:update', (event, definition: SaintDefinition) => {
       event.sender.send('saint:definition', this.updateDefinition(definition));

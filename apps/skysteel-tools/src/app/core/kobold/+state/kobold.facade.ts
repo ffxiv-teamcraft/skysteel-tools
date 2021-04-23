@@ -22,11 +22,23 @@ export class KoboldFacade {
     select(KoboldSelectors.getSelectedSheet)
   );
 
+  public selectedSheetName$ = this.store.pipe(
+    select(KoboldSelectors.getSelectedId)
+  );
+
   constructor(private store: Store) {
   }
 
   public loadSheetsList(): void {
     this.store.dispatch(KoboldActions.loadSheetsList());
+  }
+
+  /**
+   * Loads all sheets at once
+   * @param length The amount of rows we want for each sheet
+   */
+  public loadAllSheets(length: number): void {
+    this.store.dispatch(KoboldActions.loadAllSheets({length}));
   }
 
   public loadSheet(sheetName: string): void {
