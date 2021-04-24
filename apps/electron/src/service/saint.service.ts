@@ -55,12 +55,8 @@ export class SaintService {
   }
 
   private getDefinition(sheetName: string): SaintDefinition {
-    try {
-      const raw = readFileSync(join(this.path, `${sheetName}.json`), 'utf8');
-      return JSON.parse(raw) as SaintDefinition;
-    } catch (e) {
-      throw new Error(`Missing sheet definition for ${sheetName}`);
-    }
+    const raw = readFileSync(join(this.path, `${sheetName}.json`), 'utf8');
+    return JSON.parse(raw) as SaintDefinition;
   }
 
   private createDefinition(sheetName: string): SaintDefinition {

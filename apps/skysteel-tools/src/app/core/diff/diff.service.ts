@@ -4,10 +4,11 @@ import { KoboldFacade } from '../kobold/+state/kobold.facade';
 import { combineLatest, concat, Observable } from 'rxjs';
 import { bufferCount, filter, first, map, switchMap } from 'rxjs/operators';
 import { SaintFacade } from '../saint/+state/saint.facade';
-import { ColumnDataType, KoboldSheetColumn, KoboldSheetData } from '@skysteel-tools/models';
+import { ColumnDataType, KoboldSheetColumn, KoboldSheetData, SaintDefinition } from '@skysteel-tools/models';
 import { SheetDiffType } from './model/sheet-diff-type';
 import { ColumnDiff } from './model/column-diff';
 import { PatchDiff } from './model/patch-diff';
+import { SheetDiff } from './model/sheet-diff';
 
 @Injectable({
   providedIn: 'root'
@@ -25,14 +26,19 @@ export class DiffService {
     // 47 because we're reading 50 lines of CSV minus the 3 lines of header for CSV file
     this.kobold.loadAllSheets(47);
     this.saint.loadDefinitionsList();
-    return combineLatest([this.kobold.availableSheets$, this.kobold.loadedSheets$, this.saint.availableDefinitions$]).pipe(
-      filter(([availableSheets, loadedSheets]) => availableSheets.length > 0 && Object.keys(loadedSheets).length === availableSheets.length),
-      switchMap(([availableSheets, loadedSheets, definitions]) => {
-        return concat(...availableSheets.map(definition => {
-          return this.ipc.getDataFast<string[][]>('csv:sheet', definition).pipe(
+    this.saint.loadAllDefinitions();
+    return combineLatest([this.kobold.availableSheets$, this.kobold.loadedSheets$, this.saint.availableDefinitions$, this.saint.loadedDefinitions$]).pipe(
+      filter(([availableSheets, loadedSheets, availableDefinitions, loadedDefinitions]) => {
+        return availableSheets.length > 0 && Object.keys(loadedSheets).length === availableSheets.length
+          && availableDefinitions.length > 0 && Object.keys(loadedDefinitions).length === availableDefinitions.length;
+      }),
+      first(),
+      switchMap(([availableSheets, loadedSheets, availableDefinitions, loadedDefinitions]) => {
+        return concat(...availableSheets.map(sheetName => {
+          return this.ipc.getDataFast<string[][]>('csv:sheet', sheetName).pipe(
             map(csv => {
               return {
-                sheet: definition,
+                sheet: sheetName,
                 csv
               };
             })
@@ -40,16 +46,45 @@ export class DiffService {
         })).pipe(
           bufferCount(availableSheets.length),
           first(),
-          map(csvSheets => this.generateDiff(csvSheets.filter(csvSheet => csvSheet.csv.length > 0), loadedSheets, definitions))
+          map(csvSheets => this.generateDiff(csvSheets.filter(csvSheet => csvSheet.csv.length > 0), loadedSheets, availableDefinitions, loadedDefinitions))
         );
       })
     );
   }
 
-  private generateDiff(csvSheets: { sheet: string, csv: string[][] }[], koboldSheets: Record<string, KoboldSheetData>, definitions: string[]): PatchDiff {
-    const deletedSheets = csvSheets
-      .map(csvSheet => csvSheet.sheet)
-      .filter(sheet => koboldSheets[sheet] === undefined && definitions.includes(sheet));
+  public applyChanges(definition: SaintDefinition, ...changes: ColumnDiff[]): SaintDefinition {
+    return {
+      ...definition,
+      definitions: changes.reduce((acc, change) => {
+        switch (change.type) {
+          case SheetDiffType.ADDED:
+            return acc.map(col => {
+              const newColIndex = (col.index || 0) >= change.index ? (col.index || 0) + 1 : col.index;
+              return {
+                ...col,
+                index: newColIndex
+              };
+            });
+          case SheetDiffType.REMOVED:
+            return acc.map(col => {
+              const newColIndex = (col.index || 0) >= change.index ? (col.index || 0) - 1 : col.index;
+              return {
+                ...col,
+                index: newColIndex
+              };
+            });
+          case SheetDiffType.MODIFIED:
+            return acc.filter(col => {
+              return (col.index || 0) !== change.index;
+            });
+        }
+      }, definition.definitions)
+    };
+  }
+
+  private generateDiff(csvSheets: { sheet: string, csv: string[][] }[], koboldSheets: Record<string, KoboldSheetData>, definitions: string[], loadedDefinitions: Record<string, SaintDefinition>): PatchDiff {
+    const deletedSheets = definitions
+      .filter(sheet => koboldSheets[sheet] === undefined);
     const addedSheets = Object.keys(koboldSheets)
       .filter(sheet => !csvSheets.some(csv => csv.sheet === sheet) && !definitions.includes(sheet));
     const changes = csvSheets
@@ -60,18 +95,23 @@ export class DiffService {
         const csvRows = csvSheet.csv.slice(3);
         // Skip first row for kobold to align both values
         const koboldRows = koboldSheets[csvSheet.sheet].content.map(row => row.columns);
-        const diff = this.getDiffBetweenSheets(csvRows, koboldRows);
+        const diff = this.getDiffBetweenSheets(csvRows, koboldRows)
+          .filter((diff: ColumnDiff) => {
+            return !this.isDiffApplied(diff, loadedDefinitions[csvSheet.sheet], csvSheet.csv[1]);
+          });
         if (diff.length > 0) {
           return [
             ...acc,
             {
               sheet: csvSheet.sheet,
+              definition: loadedDefinitions[csvSheet.sheet],
+              koboldSheetData: koboldSheets[csvSheet.sheet],
               diff
             }
           ];
         }
         return acc;
-      }, []);
+      }, [] as SheetDiff[]);
     return { deletedSheets, addedSheets, changes };
   }
 
@@ -81,8 +121,8 @@ export class DiffService {
       .reduce((acc, _, index) => {
         const csvColumn = this.getEntireColumn(index, csvSheet, false);
         const koboldColumn = this.getEntireColumn(index, koboldSheet, true);
-        const kobolDataType = koboldSheet[0][index + acc.currentShift]?.type;
-        if (this.percentMatch(csvColumn, koboldColumn, kobolDataType) > DiffService.MATCH_PERCENT_THRESHOLD) {
+        const koboldDataType = koboldSheet[0][index + acc.currentShift]?.type;
+        if (this.percentMatch(csvColumn, koboldColumn, koboldDataType) > DiffService.MATCH_PERCENT_THRESHOLD) {
           // Columns matching enough for us to consider it didn't change.
           return acc;
         }
@@ -117,7 +157,7 @@ export class DiffService {
               }
             ]
           };
-        } else if (acc.currentShift === 0 && !this.typeMatch(csvColumn, kobolDataType)) {
+        } else if (acc.currentShift === 0 && !this.typeMatch(csvColumn, koboldDataType)) {
           return {
             ...acc,
             currentShift: acc.currentShift + shift,
@@ -126,7 +166,7 @@ export class DiffService {
               {
                 index: index,
                 type: SheetDiffType.MODIFIED,
-                dataType: kobolDataType
+                dataType: koboldDataType
               }
             ]
           };
@@ -135,7 +175,7 @@ export class DiffService {
         }
       }, {
         currentShift: 0,
-        diff: []
+        diff: [] as ColumnDiff[]
       })
       .diff;
   }
@@ -240,7 +280,6 @@ export class DiffService {
     }
   }
 
-
   // https://stackoverflow.com/questions/10473745/compare-strings-javascript-return-of-likely
   private similarity(s1: string, s2: string): number {
     let longer = s1;
@@ -281,5 +320,31 @@ export class DiffService {
         costs[s2.length] = lastValue;
     }
     return costs[s2.length];
+  }
+
+  private isDiffApplied(diff: ColumnDiff, definition: SaintDefinition, csvHeader: string[]): boolean {
+    const closestNextCsvHeaderWithName = csvHeader
+      .slice(diff.index)
+      .map(col => definition.definitions.find(d => d.name === col))
+      .find(col => col !== undefined);
+    if (!closestNextCsvHeaderWithName) {
+      /*
+       This happens if a column has been added after all our definitions
+       For instance a sheet with 3 defined columns out of 7, only the 3 first ones.
+       If a column is added at #6, a change will be detected but impossible to apply basically, because
+       it has no impact on Definition file.
+       */
+      return true;
+    }
+    switch (diff.type) {
+      case SheetDiffType.ADDED:
+        // Make sure the index of the closest next header is lower in CSV than in the Definition
+        return csvHeader.indexOf(closestNextCsvHeaderWithName.name) < closestNextCsvHeaderWithName.index;
+      case SheetDiffType.REMOVED:
+        // Make sure the index of the closest next header is higher in CSV than in the Definition
+        return csvHeader.indexOf(closestNextCsvHeaderWithName.name) > closestNextCsvHeaderWithName.index;
+      case SheetDiffType.MODIFIED:
+        return definition.definitions.some(d => d.index === diff.index);
+    }
   }
 }

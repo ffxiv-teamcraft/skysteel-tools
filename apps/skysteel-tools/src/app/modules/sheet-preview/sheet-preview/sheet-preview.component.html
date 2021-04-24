@@ -1,0 +1,35 @@
+<div>
+  <nz-table [nzBordered]="true"
+            [nzFrontPagination]="false"
+            [nzShowPagination]="false"
+            [nzData]="parsedSheet"
+            [nzScroll]="{ x: params.totalWidth, y: '600px' }"
+            #tableComponent>
+    <thead>
+    <tr>
+      <th nzLeft nzWidth="100px">Index</th>
+      <th nzWidth="100px">SubIndex</th>
+      <th *ngFor="let col of params.header; index as i" [ngClass]="params.diff[i]"
+          nzWidth="{{params.columnsWidth[i]}}px">
+        <div fxLayout="column" fxLayoutAlign="center center">
+          <div>
+            {{col.name}}
+          </div>
+          <div>
+            <nz-tag>{{col.type}}</nz-tag>
+          </div>
+        </div>
+      </th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr *ngFor="let row of tableComponent.data">
+      <td nzLeft>{{row.index}}</td>
+      <td>{{row.subIndex}}</td>
+      <td *ngFor="let col of params.header; index as i" [ngClass]="params.diff[i]">
+        {{row.data[col.name]}}
+      </td>
+    </tr>
+    </tbody>
+  </nz-table>
+</div>

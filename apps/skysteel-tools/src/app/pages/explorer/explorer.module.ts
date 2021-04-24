@@ -15,6 +15,7 @@ import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
 import { NzTableModule } from 'ng-zorro-antd/table';
 import { NzDividerModule } from 'ng-zorro-antd/divider';
 import { SheetSelectorModule } from '../../modules/sheet-selector/sheet-selector.module';
+import { NzTagModule } from 'ng-zorro-antd/tag';
 
 const routes: Routes = [
   {
@@ -52,7 +53,8 @@ const routes: Routes = [
     NzToolTipModule,
     NzTableModule,
     NzDividerModule,
-    SheetSelectorModule
+    SheetSelectorModule,
+    NzTagModule
   ]
 })
 export class ExplorerModule {

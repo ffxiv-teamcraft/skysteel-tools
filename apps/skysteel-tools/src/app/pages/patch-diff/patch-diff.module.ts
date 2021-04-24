@@ -15,6 +15,8 @@ import { NzDividerModule } from 'ng-zorro-antd/divider';
 import { NzSpinModule } from 'ng-zorro-antd/spin';
 import { NzCardModule } from 'ng-zorro-antd/card';
 import { NzTagModule } from 'ng-zorro-antd/tag';
+import { SheetPreviewModule } from '../../modules/sheet-preview/sheet-preview.module';
+import { NzModalModule } from 'ng-zorro-antd/modal';
 
 const routes: Routes = [
   {
@@ -32,6 +34,7 @@ const routes: Routes = [
 
     SaintModule,
     KoboldModule,
+    SheetPreviewModule,
 
     RouterModule.forChild(routes),
     FlexLayoutModule,
@@ -44,7 +47,8 @@ const routes: Routes = [
     NzDividerModule,
     NzSpinModule,
     NzCardModule,
-    NzTagModule
+    NzTagModule,
+    NzModalModule
   ]
 })
 export class PatchDiffModule {

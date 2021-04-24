@@ -14,7 +14,14 @@
         <th nzLeft nzWidth="100px">Index</th>
         <th nzWidth="100px">SubIndex</th>
         <th *ngFor="let col of display.header; index as i" nzWidth="{{display.columnsWidth[i]}}px">
-          {{col}}
+          <div fxLayout="column" fxLayoutAlign="center center">
+            <div>
+              {{col.name}}
+            </div>
+            <div>
+              <nz-tag>{{col.type}}</nz-tag>
+            </div>
+          </div>
         </th>
       </tr>
       </thead>
@@ -24,7 +31,7 @@
           <td nzLeft>{{row.index}}</td>
           <td>{{row.subIndex}}</td>
           <td *ngFor="let col of display.header">
-            {{row.data[col]}}
+            {{row.data[col.name]}}
           </td>
         </tr>
       </ng-template>

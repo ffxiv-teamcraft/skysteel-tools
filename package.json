@@ -60,7 +60,7 @@
     "electron-store": "^7.0.3",
     "fs-extra": "^9.1.0",
     "jsoneditor": "^9.4.0",
-    "ng-zorro-antd": "11.4.0",
+    "ng-zorro-antd": "11.0.0",
     "rxjs": "~6.6.3",
     "tslib": "^2.0.0",
     "zone.js": "^0.10.2"

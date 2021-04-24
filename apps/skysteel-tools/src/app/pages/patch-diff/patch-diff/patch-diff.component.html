@@ -14,7 +14,8 @@
         <div class="change-sheet-name" fxLayout="row" fxLayoutAlign="space-between center">
           <div>{{change.sheet}}</div>
           <div>
-            <button nz-button nzType="primary">
+            <button nz-button nzType="primary"
+                    (click)="previewChanges(change.definition, change.koboldSheetData, change.diff)">
               <i nz-icon nzType="code" nzTheme="outline"></i>
               Preview all changes for this sheet
             </button>
@@ -27,12 +28,7 @@
             <nz-tag [nzColor]="getDiffColor(diff.type)">
               <i nz-icon [nzType]="getDiffIcon(diff.type)"></i> {{SheetDiffType[diff.type]}}
             </nz-tag>
-            <nz-tag *ngIf="diff.dataType">{{ColumnDataType[diff.dataType]}}</nz-tag>
-          </div>
-          <div>
-            <button nz-button [nzDanger]="diff.type === SheetDiffType.REMOVED" nzSize="small">
-              <i nz-icon [nzType]="getDiffIcon(diff.type)"></i> Preview this change
-            </button>
+            <nz-tag *ngIf="diff.dataType > -1">{{ColumnDataType[diff.dataType]}}</nz-tag>
           </div>
         </div>
       </div>
@@ -88,5 +84,5 @@
 
 </div>
 <ng-template #loader>
-  <nz-spin nzSpinning nzSize="large"></nz-spin>
+  <nz-spin nzSpinning nzSize="large" nzTip="Computing diff, please wait..."></nz-spin>
 </ng-template>
