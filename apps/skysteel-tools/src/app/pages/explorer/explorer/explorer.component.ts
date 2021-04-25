@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, ElementRef, ViewChild } from '@angu
 import { KoboldFacade } from '../../../core/kobold/+state/kobold.facade';
 import { SaintFacade } from '../../../core/saint/+state/saint.facade';
 import { ParserService } from '../../../core/parser/parser.service';
-import { combineLatest } from 'rxjs';
+import { combineLatest, Subject } from 'rxjs';
 import { filter, map } from 'rxjs/operators';
 import { ParsedRow } from '../../../core/parser/model/parsed-row';
 import { AbstractPageComponent } from '../../../core/abstract-page-component';
@@ -14,13 +14,16 @@ import { AbstractPageComponent } from '../../../core/abstract-page-component';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ExplorerComponent extends AbstractPageComponent {
+  tableContainerRef$ = new Subject<ElementRef>();
 
   @ViewChild('tableContainer')
-  tableContainerRef: ElementRef;
+  set tableContainerRef(ref: ElementRef) {
+    this.tableContainerRef$.next(ref);
+  }
 
-  display$ = combineLatest([this.saint.selectedDefinition$, this.kobold.selectedSheet$, this.kobold.selectedSheetName$]).pipe(
+  display$ = combineLatest([this.saint.selectedDefinition$, this.kobold.selectedSheet$, this.kobold.selectedSheetName$, this.tableContainerRef$]).pipe(
     filter(([definition, sheet, sheetName]) => definition && sheet && definition.sheet === sheetName),
-    map(([definition, sheet]) => {
+    map(([definition, sheet, , tableContainerRef]) => {
       const rows = this.parser.parse(sheet, definition);
       const header = this.saint.getTableHeader(rows, sheet, definition);
       const columnsWidth = this.saint.getColumnsWidth(definition, rows, header);
@@ -29,7 +32,7 @@ export class ExplorerComponent extends AbstractPageComponent {
         rows,
         columnsWidth,
         totalWidth: columnsWidth.reduce((acc, w) => acc + w, 0) + 'px',
-        tableHeight: (this.tableContainerRef.nativeElement.offsetHeight - 100) + 'px'
+        tableHeight: (tableContainerRef.nativeElement.offsetHeight - 100) + 'px'
       };
     })
   );

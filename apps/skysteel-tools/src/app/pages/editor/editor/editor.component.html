@@ -1,18 +1,15 @@
-<div class="explorer-container" fxLayout="column">
-  <nz-page-header nzTitle="Definition editor" (nzBack)="back()"></nz-page-header>
-  <skysteel-tools-sheet-selector>
-    <div *ngIf="selectedDefinition$ | async as definition; else noDefinitionSelected" class="editor-container"
-         fxLayout="column">
-      <div fxLayout="row" class="editor-topbar">
-        <button nz-button nz-tooltip nzTooltipTitle="Index shift" (click)="indexShift(definition)">
-          <i nz-icon nzType="swap"></i>
-        </button>
-      </div>
-      <json-editor class="editor" fxFlex="1 1 auto"
-                   [options]="editorOptions" [data]="definition"></json-editor>
+<skysteel-tools-sheet-selector>
+  <div *ngIf="selectedDefinition$ | async as definition; else noDefinitionSelected" class="editor-container"
+       fxLayout="column">
+    <div fxLayout="row" class="editor-topbar">
+      <button nz-button nz-tooltip nzTooltipTitle="Index shift" (click)="indexShift(definition)">
+        <i nz-icon nzType="swap"></i>
+      </button>
     </div>
-    <ng-template #noDefinitionSelected>
-      <nz-empty nzNotFoundContent="No selected definition"></nz-empty>
-    </ng-template>
-  </skysteel-tools-sheet-selector>
-</div>
+    <json-editor class="editor" fxFlex="1 1 auto"
+                 [options]="editorOptions" [data]="definition"></json-editor>
+  </div>
+  <ng-template #noDefinitionSelected>
+    <nz-empty nzNotFoundContent="No selected definition"></nz-empty>
+  </ng-template>
+</skysteel-tools-sheet-selector>
