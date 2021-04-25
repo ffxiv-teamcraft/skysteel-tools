@@ -74,8 +74,13 @@ export class SaintService {
   }
 
   private getDefinition(sheetName: string): SaintDefinition {
-    const raw = readFileSync(join(this.path, `${sheetName}.json`), 'utf8');
-    return JSON.parse(raw) as SaintDefinition;
+    try {
+      const raw = readFileSync(join(this.path, `${sheetName}.json`), 'utf8');
+      return JSON.parse(raw) as SaintDefinition;
+    } catch (e) {
+      throw new Error(`${sheetName}.json: ${e.message}`);
+    }
+
   }
 
   private createDefinition(sheetName: string): SaintDefinition {
