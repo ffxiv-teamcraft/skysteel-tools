@@ -10,10 +10,6 @@ export class CsvService {
 
   constructor(private ipc: IpcService, private store: Store, private win: BrowserWindow) {
     this.ipc.on('csv:sheet:get', (event, sheetName) => {
-      if (this.store.get('csv:sheets:path', '') === '') {
-        throw new Error('Please set path to extracts before trying to get a CSV file');
-      }
-
       try {
         event.sender.send(`csv:sheet(${sheetName})`, this.getCSV(sheetName));
       } catch (e) {
