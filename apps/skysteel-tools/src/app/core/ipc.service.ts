@@ -1,6 +1,7 @@
 import { Injectable, NgZone } from '@angular/core';
 import { IpcRenderer, IpcRendererEvent } from 'electron';
 import { Observable, ReplaySubject } from 'rxjs';
+import { NzNotificationService } from 'ng-zorro-antd/notification';
 
 type EventCallback<T = any> = (event: IpcRendererEvent, ...args: T[]) => void;
 
@@ -15,7 +16,7 @@ export class IpcService {
     return this._ipc !== undefined;
   }
 
-  constructor(private zone: NgZone) {
+  constructor(private zone: NgZone, private notification: NzNotificationService) {
     // Only load ipc if we're running inside electron
     if (window.require) {
       this._ipc = window.require('electron').ipcRenderer;
@@ -29,6 +30,7 @@ export class IpcService {
   private connectListeners(): void {
     this.on('error', (e, error: Error) => {
       console.error(error);
+      this.notification.error('Error', error.message);
     });
   }
 

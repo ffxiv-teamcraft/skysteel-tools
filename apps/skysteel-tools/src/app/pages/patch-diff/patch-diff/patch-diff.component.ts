@@ -1,6 +1,6 @@
 import { ChangeDetectorRef, Component, NgZone } from '@angular/core';
 import { ColumnDataType, KoboldSheetData, SaintDefinition } from '@skysteel-tools/models';
-import { map, tap } from 'rxjs/operators';
+import { map, switchMap } from 'rxjs/operators';
 import { DiffService } from '../../../core/diff/diff.service';
 import { SheetDiffType } from '../../../core/diff/model/sheet-diff-type';
 import { SaintFacade } from '../../../core/saint/+state/saint.facade';
@@ -8,8 +8,9 @@ import { ColumnDiff } from '../../../core/diff/model/column-diff';
 import { NzModalService } from 'ng-zorro-antd/modal';
 import { SheetPreviewComponent } from '../../../modules/sheet-preview/sheet-preview/sheet-preview.component';
 import { ParserService } from '../../../core/parser/parser.service';
-import { BehaviorSubject, combineLatest } from 'rxjs';
+import { BehaviorSubject, combineLatest, ReplaySubject } from 'rxjs';
 import { SheetDiff } from '../../../core/diff/model/sheet-diff';
+import { IpcService } from '../../../core/ipc.service';
 
 @Component({
   selector: 'skysteel-tools-patch-diff',
@@ -22,11 +23,11 @@ export class PatchDiffComponent {
 
   public ColumnDataType = ColumnDataType;
 
-  public baseDiff$ = this.diffService.getDiff().pipe(
-    tap(() => {
-      setTimeout(() => {
-        this.cd.detectChanges();
-      });
+  public csvPath$ = new ReplaySubject<string>();
+
+  public baseDiff$ = this.csvPath$.pipe(
+    switchMap(() => {
+      return this.zone.run(() => this.diffService.getDiff());
     })
   );
 
@@ -34,10 +35,11 @@ export class PatchDiffComponent {
   public createdSheets$ = new BehaviorSubject<string[]>([]);
   public deletedSheets$ = new BehaviorSubject<string[]>([]);
 
-  public diff$ = combineLatest([this.baseDiff$, this.appliedDiffs$, this.createdSheets$, this.deletedSheets$]).pipe(
-    map(([diff, applied, created, deleted]) => {
+  public diff$ = combineLatest([this.baseDiff$, this.appliedDiffs$, this.createdSheets$, this.deletedSheets$, this.csvPath$]).pipe(
+    map(([diff, applied, created, deleted, csvPath]) => {
       return {
         ...diff,
+        csvPath,
         deletedSheets: diff.deletedSheets.filter(s => !deleted.includes(s)),
         addedSheets: diff.addedSheets.filter(s => !created.includes(s)),
         changes: diff.changes
@@ -60,7 +62,15 @@ export class PatchDiffComponent {
 
   constructor(private diffService: DiffService, private saint: SaintFacade,
               private parser: ParserService, private cd: ChangeDetectorRef,
-              private modal: NzModalService, private zone: NgZone) {
+              private modal: NzModalService, private zone: NgZone,
+              private ipc: IpcService) {
+  }
+
+  public startDiff(): void {
+    this.ipc.once('csv:path()', (event, path: string) => {
+      this.csvPath$.next(path);
+    });
+    this.ipc.send('csv:path:pick');
   }
 
   public deleteDefinition(sheetName: string): void {

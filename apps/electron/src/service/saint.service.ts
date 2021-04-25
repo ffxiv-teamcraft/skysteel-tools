@@ -3,16 +3,20 @@ import { extname, join } from 'path';
 import { SaintDefinition } from '@skysteel-tools/models';
 import { Store } from '../store';
 import { IpcService } from './ipc.service';
+import { BrowserWindow, dialog, OpenDialogOptions } from 'electron';
 
 export class SaintService {
 
-  private path: string = 'G:\\WebstormProjects\\SaintCoinach\\SaintCoinach\\Definitions';
+  private path: string = '';
 
-  constructor(private ipc: IpcService, private store: Store) {
+  constructor(private ipc: IpcService, private store: Store, private win: BrowserWindow) {
     const definitionsPath = store.get('saint:definitions:path', '');
     if (definitionsPath.length > 0) {
       this.setDefinitionsDirectory(definitionsPath);
     }
+    this.ipc.on('saint:path:get', (event) => {
+      event.sender.send(`saint:path()`, store.get('saint:definitions:path', ''));
+    });
     this.ipc.twoWayBinding<string>('saint:definitions', 'saint:definitions:path', (value) => {
       this.setDefinitionsDirectory(value);
     }, '');
@@ -33,6 +37,20 @@ export class SaintService {
       this.deleteDefinition(sheetName);
       event.sender.send('saint:definitions:list', this.getDefinitionsList());
     });
+    this.ipc.on('saint:path:pick', (event) => {
+      const folderPickerOptions: OpenDialogOptions = {
+        properties: ['openDirectory']
+      };
+      dialog.showOpenDialog(this.win, folderPickerOptions).then((result) => {
+        if (result.canceled) {
+          return;
+        }
+        const filePath = result.filePaths[0];
+        this.setDefinitionsDirectory(filePath);
+        event.sender.send('saint:path()', filePath);
+        store.set('saint:definitions:path', filePath);
+      });
+    });
   }
 
   private setDefinitionsDirectory(path: string): void {
@@ -41,6 +59,7 @@ export class SaintService {
       accessSync(join(path, 'Achievement.json'));
       this.path = path;
     } catch (e) {
+      this.win.webContents.send('saint:path', '');
       throw new Error('Wrong Saint Definitions path, it should point to the folder containing definition files (or Achievement.json is missing).');
     }
   }

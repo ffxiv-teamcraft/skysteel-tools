@@ -1,40 +1,56 @@
-<nz-layout class="app-layout">
-  <nz-sider class="menu-sidebar"
-            nzCollapsible
-            nzWidth="256px"
-            [(nzCollapsed)]="isCollapsed">
-    <div class="sidebar-logo">
-      <img src="./assets/logo.png" alt="logo">
-      <h1>Skysteel Tools</h1>
-    </div>
-    <ul nz-menu nzTheme="dark" nzMode="inline" [nzInlineCollapsed]="isCollapsed">
-      <li nz-menu-item routerLink="/explorer"
-          routerLinkActive="ant-menu-item-selected">
-        <i nz-icon nzType="file-search" nzTheme="outline"></i>
-        <span>Explorer</span>
-      </li>
-      <li nz-menu-item routerLink="/editor"
-          routerLinkActive="ant-menu-item-selected">
-        <i nz-icon nzType="edit" nzTheme="outline"></i>
-        <span>Editor</span>
-      </li>
-      <li nz-menu-item routerLink="/definitions-organizer"
-          routerLinkActive="ant-menu-item-selected">
-        <i nz-icon nzType="inbox" nzTheme="outline"></i>
-        <span>Definitions organizer</span>
-      </li>
-      <li nz-menu-item routerLink="/patch-diff"
-          routerLinkActive="ant-menu-item-selected">
-        <i nz-icon nzType="diff" nzTheme="outline"></i>
-        <span>Patch diff</span>
-      </li>
-    </ul>
-  </nz-sider>
-  <nz-layout class="scroll-content">
-    <nz-content>
-      <div class="inner-content">
-        <router-outlet></router-outlet>
+<nz-layout class="app-layout" *ngIf="saintStatus$ | async as saintStatus; else loader">
+  <ng-container *ngIf="saintStatus.pathSet; else configurationBox">
+    <nz-sider class="menu-sidebar"
+              nzCollapsible
+              nzWidth="256px"
+              [(nzCollapsed)]="isCollapsed">
+      <div class="sidebar-logo">
+        <img src="./assets/logo.png" alt="logo">
+        <h1>Skysteel Tools</h1>
       </div>
-    </nz-content>
-  </nz-layout>
+      <ul nz-menu nzTheme="dark" nzMode="inline" [nzInlineCollapsed]="isCollapsed">
+        <li nz-menu-item routerLink="/explorer"
+            routerLinkActive="ant-menu-item-selected">
+          <i nz-icon nzType="file-search" nzTheme="outline"></i>
+          <span>Explorer</span>
+        </li>
+        <li nz-menu-item routerLink="/editor"
+            routerLinkActive="ant-menu-item-selected">
+          <i nz-icon nzType="edit" nzTheme="outline"></i>
+          <span>Editor</span>
+        </li>
+        <li nz-menu-item routerLink="/definitions-organizer"
+            routerLinkActive="ant-menu-item-selected">
+          <i nz-icon nzType="inbox" nzTheme="outline"></i>
+          <span>Definitions organizer</span>
+        </li>
+        <li nz-menu-item routerLink="/patch-diff"
+            routerLinkActive="ant-menu-item-selected">
+          <i nz-icon nzType="diff" nzTheme="outline"></i>
+          <span>Patch diff</span>
+        </li>
+      </ul>
+    </nz-sider>
+    <nz-layout class="scroll-content">
+      <nz-content>
+        <div class="inner-content">
+          <router-outlet></router-outlet>
+        </div>
+      </nz-content>
+    </nz-layout>
+  </ng-container>
+  <ng-template #configurationBox>
+    <div fxLayout="column" fxLayoutAlign="center center" class="super-container">
+      <h1>Configuration</h1>
+      <div>
+        <button nz-button nzType="primary" (click)="pickSaintFolder()"
+                class="corners-left">Set path to definitions folder</button>
+      </div>
+    </div>
+  </ng-template>
 </nz-layout>
+<ng-template #loader>
+  <div fxLayout="column" fxLayoutAlign="center center" class="super-container">
+    <nz-spin nzSize="large"></nz-spin>
+  </div>
+</ng-template>

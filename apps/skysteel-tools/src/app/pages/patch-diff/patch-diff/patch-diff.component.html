@@ -1,88 +1,99 @@
 <nz-page-header nzTitle="Patch diff"></nz-page-header>
-<div *ngIf="diff$ | async as diff; else loader"
-     fxLayout="column" fxLayoutGap="20px" class="diff-page-container">
+<div *ngIf="csvPath$ | async as path else pathForm">
+  <div *ngIf="diff$ | async as diff; else loader"
+       fxLayout="column" fxLayoutGap="20px" class="diff-page-container">
 
+    <nz-divider nzOrientation="left" nzText="Diff with {{path}}"></nz-divider>
 
-  <nz-card [nzTitle]="changesTitleRef">
-    <ng-template #changesTitleRef>
-      Changes ({{diff.changes.length}})
-    </ng-template>
-    <div fxLayout="column" class="sheets-list changes-list">
-      <nz-empty *ngIf="diff.changes.length === 0" nzNotFoundContent="No deleted sheets"></nz-empty>
-      <div *ngFor="let change of diff.changes; odd as odd" fxLayout="column"
-           class="list-row" [class.odd]="odd">
-        <div class="change-sheet-name" fxLayout="row" fxLayoutAlign="space-between center">
-          <div>{{change.sheet}}</div>
+    <nz-card [nzTitle]="changesTitleRef">
+      <ng-template #changesTitleRef>
+        Changes ({{diff.changes.length}})
+      </ng-template>
+      <div fxLayout="column" class="sheets-list changes-list">
+        <nz-empty *ngIf="diff.changes.length === 0" nzNotFoundContent="No deleted sheets"></nz-empty>
+        <div *ngFor="let change of diff.changes; odd as odd" fxLayout="column"
+             class="list-row" [class.odd]="odd">
+          <div class="change-sheet-name" fxLayout="row" fxLayoutAlign="space-between center">
+            <div>{{change.sheet}}</div>
+            <div>
+              <button nz-button nzType="primary"
+                      (click)="previewChanges(change.definition, change.koboldSheetData, change.diff)">
+                <i nz-icon nzType="code" nzTheme="outline"></i>
+                Preview all changes for this sheet
+              </button>
+            </div>
+          </div>
+          <div class="change-diff-row" fxLayout="row" fxLayoutAlign="space-between center"
+               *ngFor="let diff of change.diff; odd as odd" [class.odd]="odd">
+            <div>
+              #{{diff.index}}:
+              <nz-tag [nzColor]="getDiffColor(diff.type)">
+                <i nz-icon [nzType]="getDiffIcon(diff.type)"></i> {{SheetDiffType[diff.type]}}
+              </nz-tag>
+              <nz-tag *ngIf="diff.dataType > -1">{{ColumnDataType[diff.dataType]}}</nz-tag>
+            </div>
+          </div>
+        </div>
+      </div>
+    </nz-card>
+
+    <nz-card [nzTitle]="titleRef" [nzExtra]="addAllRef">
+      <ng-template #titleRef>
+        New sheets ({{diff.addedSheets.length}})
+      </ng-template>
+      <ng-template #addAllRef>
+        <button nz-button nzType="primary" (click)="createAllDefinitions(diff.addedSheets)">
+          <i nz-icon nzType="file-add" nzTheme="outline"></i> Create all missing definitions
+        </button>
+      </ng-template>
+      <div fxLayout="column" class="sheets-list">
+        <nz-empty *ngIf="diff.addedSheets.length === 0" nzNotFoundContent="No new sheets"></nz-empty>
+        <div *ngFor="let sheet of diff.addedSheets; odd as odd" fxLayout="row" fxLayoutAlign="space-between center"
+             class="list-row" [class.odd]="odd">
+          <div>{{sheet}}</div>
           <div>
-            <button nz-button nzType="primary"
-                    (click)="previewChanges(change.definition, change.koboldSheetData, change.diff)">
-              <i nz-icon nzType="code" nzTheme="outline"></i>
-              Preview all changes for this sheet
+            <button nz-button nzType="primary" nzShape="circle" (click)="createDefinition(sheet)">
+              <i nz-icon nzType="file-add" nzTheme="outline"></i>
             </button>
           </div>
         </div>
-        <div class="change-diff-row" fxLayout="row" fxLayoutAlign="space-between center"
-             *ngFor="let diff of change.diff; odd as odd" [class.odd]="odd">
+      </div>
+    </nz-card>
+
+    <nz-card [nzTitle]="deletionsTitleRef" [nzExtra]="deleteAllRef">
+      <ng-template #deletionsTitleRef>
+        Deleted sheets ({{diff.deletedSheets.length}})
+      </ng-template>
+      <ng-template #deleteAllRef>
+        <button nz-button nzDanger (click)="deleteAllDefinitions(diff.deletedSheets)">
+          <i nz-icon nzType="delete" nzTheme="outline"></i> Delete all useless definitions
+        </button>
+      </ng-template>
+      <div fxLayout="column" class="sheets-list">
+        <nz-empty *ngIf="diff.deletedSheets.length === 0" nzNotFoundContent="No deleted sheets"></nz-empty>
+        <div *ngFor="let sheet of diff.deletedSheets; odd as odd" fxLayout="row" fxLayoutAlign="space-between center"
+             class="list-row" [class.odd]="odd">
+          <div>{{sheet}}</div>
           <div>
-            #{{diff.index}}:
-            <nz-tag [nzColor]="getDiffColor(diff.type)">
-              <i nz-icon [nzType]="getDiffIcon(diff.type)"></i> {{SheetDiffType[diff.type]}}
-            </nz-tag>
-            <nz-tag *ngIf="diff.dataType > -1">{{ColumnDataType[diff.dataType]}}</nz-tag>
+            <button nz-button nzDanger nzShape="circle" (click)="deleteDefinition(sheet)">
+              <i nz-icon nzType="delete" nzTheme="outline"></i>
+            </button>
           </div>
         </div>
       </div>
-    </div>
-  </nz-card>
+    </nz-card>
 
-  <nz-card [nzTitle]="titleRef" [nzExtra]="addAllRef">
-    <ng-template #titleRef>
-      New sheets ({{diff.addedSheets.length}})
-    </ng-template>
-    <ng-template #addAllRef>
-      <button nz-button nzType="primary" (click)="createAllDefinitions(diff.addedSheets)">
-        <i nz-icon nzType="file-add" nzTheme="outline"></i> Create all missing definitions
-      </button>
-    </ng-template>
-    <div fxLayout="column" class="sheets-list">
-      <nz-empty *ngIf="diff.addedSheets.length === 0" nzNotFoundContent="No new sheets"></nz-empty>
-      <div *ngFor="let sheet of diff.addedSheets; odd as odd" fxLayout="row" fxLayoutAlign="space-between center"
-           class="list-row" [class.odd]="odd">
-        <div>{{sheet}}</div>
-        <div>
-          <button nz-button nzType="primary" nzShape="circle" (click)="createDefinition(sheet)">
-            <i nz-icon nzType="file-add" nzTheme="outline"></i>
-          </button>
-        </div>
-      </div>
-    </div>
-  </nz-card>
-
-
-  <nz-card [nzTitle]="deletionsTitleRef" [nzExtra]="deleteAllRef">
-    <ng-template #deletionsTitleRef>
-      Deleted sheets ({{diff.deletedSheets.length}})
-    </ng-template>
-    <ng-template #deleteAllRef>
-      <button nz-button nzType="danger" (click)="deleteAllDefinitions(diff.deletedSheets)">
-        <i nz-icon nzType="delete" nzTheme="outline"></i> Delete all useless definitions
-      </button>
-    </ng-template>
-    <div fxLayout="column" class="sheets-list">
-      <nz-empty *ngIf="diff.deletedSheets.length === 0" nzNotFoundContent="No deleted sheets"></nz-empty>
-      <div *ngFor="let sheet of diff.deletedSheets; odd as odd" fxLayout="row" fxLayoutAlign="space-between center"
-           class="list-row" [class.odd]="odd">
-        <div>{{sheet}}</div>
-        <div>
-          <button nz-button nzDanger nzShape="circle" (click)="deleteDefinition(sheet)">
-            <i nz-icon nzType="delete" nzTheme="outline"></i>
-          </button>
-        </div>
-      </div>
-    </div>
-  </nz-card>
-
+  </div>
+  <ng-template #loader>
+    <nz-spin nzSpinning nzSize="large" nzTip="Computing diff, please wait..." class="config-container"></nz-spin>
+  </ng-template>
 </div>
-<ng-template #loader>
-  <nz-spin nzSpinning nzSize="large" nzTip="Computing diff, please wait..."></nz-spin>
+<ng-template #pathForm>
+  <div fxLayout="column" fxLayoutAlign="center center" class="config-container">
+    <div>
+      <button nz-button nzType="primary" (click)="startDiff()"
+              class="corners-left">Select a raw-exd extract folder to get started
+      </button>
+    </div>
+  </div>
 </ng-template>

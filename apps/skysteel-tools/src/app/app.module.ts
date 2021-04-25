@@ -13,6 +13,10 @@ import { AppRoutingModule } from './app-routing.module';
 import { IconsProviderModule } from './icons-provider.module';
 import { NzLayoutModule } from 'ng-zorro-antd/layout';
 import { NzMenuModule } from 'ng-zorro-antd/menu';
+import { NzSpinModule } from 'ng-zorro-antd/spin';
+import { FlexLayoutModule } from '@angular/flex-layout';
+import { NzButtonModule } from 'ng-zorro-antd/button';
+import { NzNotificationModule } from 'ng-zorro-antd/notification';
 
 registerLocaleData(en);
 
@@ -29,7 +33,11 @@ registerLocaleData(en);
     AppRoutingModule,
     IconsProviderModule,
     NzLayoutModule,
-    NzMenuModule
+    NzMenuModule,
+    NzSpinModule,
+    FlexLayoutModule,
+    NzButtonModule,
+    NzNotificationModule
   ],
   bootstrap: [AppComponent],
   providers: [{ provide: NZ_I18N, useValue: en_US }]

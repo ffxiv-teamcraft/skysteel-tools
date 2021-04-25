@@ -1,17 +1,14 @@
-import { readFileSync } from 'fs';
+import { accessSync, readFileSync } from 'fs';
 import { join } from 'path';
 import { Store } from '../store';
 import { IpcService } from './ipc.service';
+import { BrowserWindow, dialog, OpenDialogOptions } from 'electron';
 
 export class CsvService {
 
-  constructor(private ipc: IpcService, private store: Store) {
-    this.store.set('csv:sheets:path', 'G:\\WebstormProjects\\xivapi.com\\data\\ffxiv-datamining-patches\\extracts\\5.45');
-    // TODO Get path from UI interaction
-    this.ipc.twoWayBinding<string>('csv:sheets:path',
-      'csv:sheets:path',
-      null,
-      'G:\\WebstormProjects\\xivapi.com\\data\\ffxiv-datamining-patches\\extracts\\5.45');
+  private path = '';
+
+  constructor(private ipc: IpcService, private store: Store, private win: BrowserWindow) {
     this.ipc.on('csv:sheet:get', (event, sheetName) => {
       if (this.store.get('csv:sheets:path', '') === '') {
         throw new Error('Please set path to extracts before trying to get a CSV file');
@@ -23,6 +20,33 @@ export class CsvService {
         event.sender.send(`csv:sheet(${sheetName})`, []);
       }
     });
+    this.ipc.on('csv:path:pick', (event) => {
+      const folderPickerOptions: OpenDialogOptions = {
+        properties: ['openDirectory']
+      };
+      dialog.showOpenDialog(this.win, folderPickerOptions).then((result) => {
+        if (result.canceled) {
+          return;
+        }
+        const filePath = result.filePaths[0];
+        try {
+          this.setPath(filePath);
+        } catch (e) {
+          event.sender.send('error', e);
+        }
+      });
+    });
+  }
+
+  private setPath(path: string): void {
+    try {
+      // Just check that Achievement csv is here
+      accessSync(join(path, 'Achievement.csv'));
+      this.path = path;
+      this.win.webContents.send('csv:path()', path);
+    } catch (e) {
+      throw new Error('Wrong raw-exd path, it should point to a folder where *.csv sheets (like Achievement.csv for instance) are, without language suffixes.');
+    }
   }
 
   CSVToArray(strData: string, maxLength: number): string[][] {
@@ -103,7 +127,7 @@ export class CsvService {
   }
 
   private getCSV(name: string): string[][] {
-    const path = this.store.get('csv:sheets:path', '');
+    const path = this.path;
     try {
       const data = readFileSync(join(path, `${name}.csv`), 'utf-8');
       // Get only the first 50 rows, will eb enough to figure out if a change happened or not

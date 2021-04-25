@@ -15,9 +15,6 @@ function createWindow(kobold: Kobold) {
   //Prepare all the managers
   const store = new Store();
   const ipc = new IpcService(store);
-  new SaintService(ipc, store);
-  new KoboldService(ipc, kobold);
-  new CsvService(ipc, store);
 
 
   const opts: BrowserWindowConstructorOptions = {
@@ -34,6 +31,10 @@ function createWindow(kobold: Kobold) {
   };
   Object.assign(opts, store.get('win:bounds', {}));
   const win = new BrowserWindow(opts);
+
+  new SaintService(ipc, store, win);
+  new KoboldService(ipc, kobold);
+  new CsvService(ipc, store, win);
 
   win.loadURL(`file://${BASE_APP_PATH}/index.html`);
 
