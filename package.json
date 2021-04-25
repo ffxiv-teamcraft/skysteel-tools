@@ -1,13 +1,30 @@
 {
   "name": "skysteel-tools",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "license": "MIT",
+  "main": "dist/apps/electron/src/main.js",
+  "build": {
+    "appId": "skysteel-tools",
+    "productName": "Skysteel Tools",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist"
+    ],
+    "win": {
+      "icon": "./logo.ico",
+      "publisherName": "Skysteel Tools",
+      "target": "portable"
+    }
+  },
   "scripts": {
     "ng": "nx",
     "postinstall": "node ./decorate-angular-cli.js && ngcc --properties es2015 browser module main",
     "nx": "nx",
     "start": "ng serve",
     "build": "ng build",
+    "build:prod": "ng build --prod",
     "build:watch": "ng build --watch",
     "test": "ng test",
     "lint": "nx workspace-lint && ng lint",
@@ -30,10 +47,19 @@
     "************ELECTRON STUFF*****************": "",
     "electron": "electron",
     "electron:build": "tsc -p apps/electron/tsconfig.json",
-    "electron:start": "yarn electron:build && electron ./dist/apps/electron/src/main.js"
+    "electron:start": "yarn electron:build && electron ./dist/apps/electron/src/main.js",
+    "electron:package": "yarn build:prod && yarn electron:build && electron-builder --win"
   },
   "private": true,
   "dependencies": {
+    "@kobold/core": "^0.0.1",
+    "@kobold/excel": "^0.0.2",
+    "@kobold/xiv": "^0.0.2",
+    "electron-store": "^7.0.3",
+    "tslib": "^2.0.0",
+    "fs-extra": "^9.1.0"
+  },
+  "devDependencies": {
     "@angular/animations": "^11.2.0",
     "@angular/cdk": "~11.2.8-sha-a9e5ad264",
     "@angular/common": "^11.2.0",
@@ -44,28 +70,6 @@
     "@angular/platform-browser": "^11.2.0",
     "@angular/platform-browser-dynamic": "^11.2.0",
     "@angular/router": "^11.2.0",
-    "@kobold/core": "^0.0.1",
-    "@kobold/excel": "^0.0.2",
-    "@kobold/xiv": "^0.0.2",
-    "@ngrx/component-store": "^11.0.0",
-    "@ngrx/effects": "^11.0.0",
-    "@ngrx/entity": "^11.0.0",
-    "@ngrx/router-store": "^11.0.0",
-    "@ngrx/store": "^11.0.0",
-    "@nrwl/angular": "12.0.4",
-    "ang-jsoneditor": "^1.10.5",
-    "csv-parser": "^3.0.0",
-    "electron": "^12.0.4",
-    "electron-log": "^4.3.4",
-    "electron-store": "^7.0.3",
-    "fs-extra": "^9.1.0",
-    "jsoneditor": "^9.4.0",
-    "ng-zorro-antd": "11.0.0",
-    "rxjs": "~6.6.3",
-    "tslib": "^2.0.0",
-    "zone.js": "^0.10.2"
-  },
-  "devDependencies": {
     "@angular-devkit/build-angular": "~0.1102.0",
     "@angular-eslint/eslint-plugin": "~2.0.2",
     "@angular-eslint/eslint-plugin-template": "~2.0.2",
@@ -75,6 +79,12 @@
     "@angular/language-service": "^11.2.0",
     "@ngrx/schematics": "^11.0.0",
     "@ngrx/store-devtools": "^11.0.0",
+    "@ngrx/component-store": "^11.0.0",
+    "@ngrx/effects": "^11.0.0",
+    "@ngrx/entity": "^11.0.0",
+    "@ngrx/router-store": "^11.0.0",
+    "@ngrx/store": "^11.0.0",
+    "@nrwl/angular": "12.0.4",
     "@nrwl/cli": "12.0.4",
     "@nrwl/cypress": "12.0.4",
     "@nrwl/eslint-plugin-nx": "12.0.4",
@@ -87,16 +97,23 @@
     "@types/node": "14.14.33",
     "@typescript-eslint/eslint-plugin": "4.19.0",
     "@typescript-eslint/parser": "4.19.0",
+    "ang-jsoneditor": "^1.10.5",
     "cypress": "^6.0.1",
     "dotenv": "8.2.0",
+    "electron": "^12.0.4",
+    "electron-builder": "^22.10.5",
     "eslint": "7.22.0",
     "eslint-config-prettier": "8.1.0",
     "eslint-plugin-cypress": "^2.10.3",
     "jest": "26.2.2",
     "jest-preset-angular": "8.3.2",
+    "jsoneditor": "^9.4.0",
+    "ng-zorro-antd": "11.0.0",
+    "rxjs": "~6.6.3",
     "prettier": "2.2.1",
     "ts-jest": "26.4.0",
     "ts-node": "~9.1.1",
-    "typescript": "~4.1.4"
+    "typescript": "~4.1.4",
+    "zone.js": "^0.10.2"
   }
 }

@@ -29,7 +29,7 @@ export class ExplorerComponent extends AbstractPageComponent {
         rows,
         columnsWidth,
         totalWidth: columnsWidth.reduce((acc, w) => acc + w, 0) + 'px',
-        tableHeight: (this.tableContainerRef.nativeElement.offsetHeight - 60) + 'px'
+        tableHeight: (this.tableContainerRef.nativeElement.offsetHeight - 100) + 'px'
       };
     })
   );
