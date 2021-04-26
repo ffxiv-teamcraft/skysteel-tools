@@ -1,6 +1,6 @@
 import { ChangeDetectorRef, Component, NgZone } from '@angular/core';
 import { ColumnDataType, KoboldSheetData, SaintDefinition } from '@skysteel-tools/models';
-import { map, switchMap } from 'rxjs/operators';
+import { map, switchMap, tap } from 'rxjs/operators';
 import { DiffService } from '../../../core/diff/diff.service';
 import { SheetDiffType } from '../../../core/diff/model/sheet-diff-type';
 import { SaintFacade } from '../../../core/saint/+state/saint.facade';
@@ -28,6 +28,9 @@ export class PatchDiffComponent {
   public baseDiff$ = this.csvPath$.pipe(
     switchMap(() => {
       return this.zone.run(() => this.diffService.getDiff());
+    }),
+    tap(() => {
+      this.cd.detectChanges();
     })
   );
 
