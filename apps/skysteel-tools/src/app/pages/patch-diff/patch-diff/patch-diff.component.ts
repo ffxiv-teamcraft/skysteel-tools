@@ -25,14 +25,14 @@ export class PatchDiffComponent {
 
   public csvPath$ = new ReplaySubject<string>();
 
-  public baseDiff$ = this.csvPath$.pipe(
+  public baseDiff$ = this.zone.run(() => this.csvPath$.pipe(
     switchMap(() => {
       return this.zone.run(() => this.diffService.getDiff());
     }),
     tap(() => {
       this.cd.detectChanges();
     })
-  );
+  ));
 
   public appliedDiffs$ = new BehaviorSubject<SheetDiff[]>([]);
   public createdSheets$ = new BehaviorSubject<string[]>([]);
