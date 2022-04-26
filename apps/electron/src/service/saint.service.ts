@@ -101,6 +101,7 @@ export class SaintService {
     try {
       writeFileSync(join(this.path, `${definition.sheet}.json`), JSON.stringify(definition, null, 2),
         { encoding: 'utf8', flag: 'w' });
+      console.log('SAVE OK', join(this.path, `${definition.sheet}.json`));
       return definition;
     } catch (e) {
       throw new Error(`Definition ${definition.sheet}.json not found`);

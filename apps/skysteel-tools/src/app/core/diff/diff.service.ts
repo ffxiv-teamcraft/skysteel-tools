@@ -24,7 +24,7 @@ export class DiffService {
   public getDiff(): Observable<PatchDiff> {
     this.kobold.loadSheetsList();
     // 47 because we're reading 50 lines of CSV minus the 3 lines of header for CSV file
-    this.kobold.loadAllSheets(47);
+    this.kobold.loadAllSheets(297);
     this.saint.loadDefinitionsList();
     this.saint.loadAllDefinitions();
     return combineLatest([this.kobold.availableSheets$, this.kobold.loadedSheets$, this.saint.availableDefinitions$, this.saint.loadedDefinitions$]).pipe(
@@ -325,6 +325,7 @@ export class DiffService {
   private isDiffApplied(diff: ColumnDiff, definition: SaintDefinition, csvHeader: string[]): boolean {
     const closestNextCsvHeaderWithName = csvHeader
       .slice(diff.index)
+      .filter(col => !!col)
       .map(col => definition.definitions.find(d => d.name === col))
       .find(col => col !== undefined);
     if (!closestNextCsvHeaderWithName) {

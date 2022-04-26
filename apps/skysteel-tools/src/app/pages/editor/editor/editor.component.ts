@@ -1,6 +1,5 @@
 import { Component } from '@angular/core';
-import { BehaviorSubject, combineLatest } from 'rxjs';
-import { filter, map, takeUntil } from 'rxjs/operators';
+import { filter, takeUntil } from 'rxjs/operators';
 import { JsonEditorOptions } from 'ang-jsoneditor';
 import { NzModalService } from 'ng-zorro-antd/modal';
 import { SaintDefinition } from '@skysteel-tools/models';
@@ -52,6 +51,10 @@ export class EditorComponent extends AbstractPageComponent {
       return errors;
     };
     this.editorOptions.mainMenuBar = false;
+  }
+
+  public save(definition: SaintDefinition): void {
+    this.saint.updateDefinition(definition);
   }
 
   public selectDefinition(definition: string): void {

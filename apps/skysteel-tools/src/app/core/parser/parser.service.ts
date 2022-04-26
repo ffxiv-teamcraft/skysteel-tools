@@ -63,7 +63,7 @@ export class ParserService {
       case 'multiref':
         return `Multiref(${converter.targets.join(', ')})#${data}`;
       default:
-        return `Converter(${converter.type})#${data.toString()}`;
+        return `Converter(${converter.type})#${(data || 'undefined').toString()}`;
     }
   }
 
