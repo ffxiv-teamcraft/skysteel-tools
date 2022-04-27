@@ -1,8 +1,6 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { AppComponent } from './app.component';
-import { StoreModule } from '@ngrx/store';
-import { EffectsModule } from '@ngrx/effects';
 import { CommonModule, registerLocaleData } from '@angular/common';
 import { en_US, NZ_I18N } from 'ng-zorro-antd/i18n';
 import en from '@angular/common/locales/en';
@@ -25,8 +23,7 @@ registerLocaleData(en);
   imports: [
     BrowserModule,
     CommonModule,
-    StoreModule.forRoot([]),
-    EffectsModule.forRoot(),
+    
     FormsModule,
     HttpClientModule,
     BrowserAnimationsModule,

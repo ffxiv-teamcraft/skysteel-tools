@@ -7,6 +7,7 @@ import { join } from 'path';
 import { Kobold } from '@kobold/core';
 import { KoboldService } from './service/kobold.service';
 import { CsvService } from './service/csv.service';
+import { ToolsService } from './service/tools.service';
 
 const BASE_APP_PATH = join(__dirname, '../../skysteel-tools');
 
@@ -35,6 +36,7 @@ function createWindow(kobold: Kobold) {
   new SaintService(ipc, store, win);
   new KoboldService(ipc, kobold);
   new CsvService(ipc, store, win);
+  new ToolsService(ipc, store, win);
 
   win.loadURL(`file://${BASE_APP_PATH}/index.html`);
 

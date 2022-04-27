@@ -1,0 +1,54 @@
+<div *ngIf="!XIVAPIconnected">
+  <form nz-form class="login-form">
+    <nz-form-item>
+      <nz-form-control>
+        <nz-input-group nzPrefixIcon="user">
+          <input type="text" nz-input placeholder="Username" [(ngModel)]="xivapiUsername" name="username" />
+        </nz-input-group>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-control>
+        <nz-input-group nzPrefixIcon="lock">
+          <input type="password" nz-input placeholder="Password" [(ngModel)]="xivapiPassword" name="password" />
+        </nz-input-group>
+      </nz-form-control>
+    </nz-form-item>
+
+    <button nz-button class="login-form-button login-form-margin" [nzType]="'primary'" (click)="connectXIVAPI()">Connect
+      XIVAPI SSH
+    </button>
+  </form>
+</div>
+<div *ngIf="XIVAPIconnected">
+  <nz-page-header>
+    <nz-page-header-title>Tools Updater</nz-page-header-title>
+    <nz-page-header-extra>
+      <button nz-button (click)="reloader$.next(0)" nzType="primary">Reload</button>
+    </nz-page-header-extra>
+    <nz-page-header-content>
+      <nz-descriptions>
+        <nz-descriptions-item nzTitle="Server SC Hash" [nzSpan]="1">{{serverSCHash$ | async}}</nz-descriptions-item>
+        <nz-descriptions-item nzTitle="Local SC Hash" [nzSpan]="1">{{localSCHash$ | async}}</nz-descriptions-item>
+        <nz-descriptions-item nzTitle="Latest SC" [nzSpan]="1">{{latestSC$ | async}}</nz-descriptions-item>
+        <!--  TODO: set this as configurable-->
+        <nz-descriptions-item nzTitle="XIVAPI Path" [nzSpan]="1">{{xivapiPath}}</nz-descriptions-item>
+      </nz-descriptions>
+    </nz-page-header-content>
+  </nz-page-header>
+  <div fxLayout="column" fxLayoutGap="10px" *ngIf="updaterState$ | async as state">
+    <div>
+      <button nz-button nzBlock nzType="primary" (click)="startUpdater()" *ngIf="!state.running">Start Update</button>
+    </div>
+    <nz-steps nzDirection="vertical">
+      <nz-step
+        *ngFor="let step of state.steps"
+        [nzTitle]="step.title"
+        [nzSubtitle]="step.subtitle"
+        [nzDescription]="step.description"
+        [nzStatus]="step.status"
+        [nzPercentage]="step.progress"
+      ></nz-step>
+    </nz-steps>
+  </div>
+</div>

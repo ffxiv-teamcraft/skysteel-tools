@@ -1,6 +1,6 @@
 import { Injectable, NgZone } from '@angular/core';
 import { IpcRenderer, IpcRendererEvent } from 'electron';
-import { Observable, ReplaySubject } from 'rxjs';
+import { Observable, ReplaySubject, Subject } from 'rxjs';
 import { NzNotificationService } from 'ng-zorro-antd/notification';
 
 type EventCallback<T = any> = (event: IpcRendererEvent, ...args: T[]) => void;
@@ -88,5 +88,15 @@ export class IpcService {
         return this._ipc.send(channel, data);
       });
     }
+  }
+
+  public sendEvent<T = any>(channel: string, data?: any): Observable<T> {
+    const res$ = new Subject<T>();
+    this.once(`${channel}:res`, (e, res) => {
+      res$.next(res as T);
+      res$.complete();
+    });
+    this.send(channel, data);
+    return res$.asObservable();
   }
 }
