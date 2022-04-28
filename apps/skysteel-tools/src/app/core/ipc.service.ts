@@ -90,10 +90,23 @@ export class IpcService {
     }
   }
 
-  public sendEvent<T = any>(channel: string, data?: any): Observable<T> {
+  public exec<T = any>(channel: string, data?: any): Observable<T> {
     const res$ = new Subject<T>();
     this.once(`${channel}:res`, (e, res) => {
       res$.next(res as T);
+      res$.complete();
+    });
+    this.send(channel, data);
+    return res$.asObservable();
+  }
+
+  public execWithStdout<T = Object>(channel: string, data?: any): Observable<string | 1 | T> {
+    const res$ = new Subject<string | 1>();
+    this.on(`${channel}:stdout`, (e, line) => {
+      res$.next(line as string);
+    });
+    this.once(`${channel}:res`, () => {
+      res$.next(1);
       res$.complete();
     });
     this.send(channel, data);

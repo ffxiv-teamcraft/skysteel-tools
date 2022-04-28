@@ -25,7 +25,7 @@ export class SheetPreviewComponent implements OnInit {
   columnsDiff: SheetDiffType[];
 
   @ViewChild(NzTableComponent, { static: true })
-  tableComponentRef: NzTableComponent;
+  tableComponentRef: NzTableComponent<any>;
 
   params: { header: { name: string, type: string }[], columnsWidth: number[], totalWidth: string, diff: string[] };
 

@@ -3,7 +3,7 @@ import { IpcService } from '../../../core/ipc.service';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { BehaviorSubject } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
-import { filter, map, startWith, switchMap } from 'rxjs/operators';
+import { map, startWith, switchMap } from 'rxjs/operators';
 import { ToolsUpdaterService } from '../tools-updater.service';
 
 @Component({
@@ -20,16 +20,13 @@ export class ToolsUpdaterComponent {
   public xivapiPassword = localStorage.getItem('XIVAPI:PW');
   public xivapiPath = 'H:\\WebstormProjects\\xivapi.com';
 
-  public serverSCHash$ = this.reloader$.pipe(
-    filter(() => this.XIVAPIconnected),
-    switchMap(() => this.ipc.sendEvent('XIVAPI:SSH:SC-version')),
-    map(res => res.split('\n')[2]),
+  public saintGameVer$ = this.reloader$.pipe(
+    switchMap(() => this.ipc.exec('SC:gamever')),
     startWith('unknown')
   );
-  public localSCHash$ = this.reloader$.pipe(
-    filter(() => this.XIVAPIconnected),
-    switchMap(() => this.ipc.sendEvent('XIVAPI:SC:version')),
-    map(res => res.split('\n')[2]),
+
+  public realGameVer$ = this.reloader$.pipe(
+    switchMap(() => this.ipc.exec('GAME:version')),
     startWith('unknown')
   );
   public latestSC$ = this.reloader$.pipe(
@@ -43,12 +40,14 @@ export class ToolsUpdaterComponent {
 
   updaterState$ = this.updaterService.state$;
 
+  newVersion: string;
+
   constructor(private ipc: IpcService, private message: NzMessageService, private http: HttpClient,
               private updaterService: ToolsUpdaterService) {
   }
 
   startUpdater(): void {
-    this.updaterService.extractLGB().subscribe();
+    this.updaterService.start(this.newVersion);
   }
 
   connectXIVAPI(): void {

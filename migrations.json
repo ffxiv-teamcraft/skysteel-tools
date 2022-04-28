@@ -1,0 +1,18 @@
+{
+  "migrations": [
+    {
+      "version": "12.0.0-0",
+      "description": "Updates NG-ZORRO to v12 [https://github.com/NG-ZORRO/ng-zorro-antd/issues/6834]",
+      "factory": "./ng-update/index#updateToV12",
+      "package": "ng-zorro-antd",
+      "name": "migration-v12"
+    },
+    {
+      "version": "13.0.0-0",
+      "description": "Updates NG-ZORRO to v13 [https://github.com/NG-ZORRO/ng-zorro-antd/issues/7157]",
+      "factory": "./ng-update/index#updateToV13",
+      "package": "ng-zorro-antd",
+      "name": "migration-v13"
+    }
+  ]
+}
