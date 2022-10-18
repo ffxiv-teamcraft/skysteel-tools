@@ -39,8 +39,14 @@
   </nz-page-header>
   <div fxLayout="column" fxLayoutGap="10px" *ngIf="updaterState$ | async as state">
     <div>
-      <input nz-input type="text" [(ngModel)]="newVersion" placeholder="New version number (ex: 5.15)"
-             [disabled]="state.running">
+      <nz-input-group [nzAddOnAfter]="newPatchToggle">
+        <ng-template #newPatchToggle>
+          <label nz-checkbox [(ngModel)]="isContentUpdate"></label>
+          New game patch
+        </ng-template>
+        <input nz-input type="text" [(ngModel)]="newVersion" placeholder="New version number (ex: 5.15)"
+               [disabled]="state.running">
+      </nz-input-group>
       <button nz-button nzBlock nzType="primary" (click)="startUpdater()" *ngIf="!state.running"
               [disabled]="!newVersion">Start Update
       </button>

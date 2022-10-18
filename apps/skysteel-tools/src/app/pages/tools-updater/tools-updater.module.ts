@@ -13,6 +13,8 @@ import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzPageHeaderModule } from 'ng-zorro-antd/page-header';
 import { NzStepsModule } from 'ng-zorro-antd/steps';
 import { FlexModule } from '@angular/flex-layout';
+import { NzSwitchModule } from 'ng-zorro-antd/switch';
+import { NzCheckboxModule } from 'ng-zorro-antd/checkbox';
 
 const routes: Routes = [
   {
@@ -38,7 +40,9 @@ const routes: Routes = [
     NzIconModule,
     NzPageHeaderModule,
     NzStepsModule,
-    FlexModule
+    FlexModule,
+    NzSwitchModule,
+    NzCheckboxModule
   ]
 })
 export class ToolsUpdaterModule {

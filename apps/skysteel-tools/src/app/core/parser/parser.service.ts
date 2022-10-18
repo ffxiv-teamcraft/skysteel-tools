@@ -29,6 +29,9 @@ export class ParserService {
         data: this.handleConverters(row.columns
             .reduce((acc, col, index) => {
               const columnDefinition = definitionsRegistry[index];
+              if (!col) {
+                console.log(acc, index);
+              }
               return {
                 ...acc,
                 [columnDefinition?.name || index]: col.value

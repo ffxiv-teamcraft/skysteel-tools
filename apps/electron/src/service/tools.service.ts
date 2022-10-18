@@ -7,7 +7,8 @@ import { exec, execFile, spawn } from 'child_process';
 import { copySync, moveSync, removeSync } from 'fs-extra';
 import { readdirSync, readFileSync, writeFileSync } from 'fs';
 import * as AdmZip from 'adm-zip';
-import { of } from 'rxjs';
+import { defer, from } from 'rxjs';
+import { last, map, mergeMap } from 'rxjs/operators';
 
 export class ToolsService {
 
@@ -53,7 +54,7 @@ export class ToolsService {
       child.on('close', () => {
         removeSync(join(this.PATHS.TEAMCRAFT, 'apps/data-extraction/input/lgb'));
         moveSync(join(this.PATHS.LGB_TO_JSON, 'out'), join(this.PATHS.TEAMCRAFT, 'apps/data-extraction/input/lgb'));
-        reply();
+        reply(1);
       });
     });
 
@@ -152,6 +153,9 @@ export class ToolsService {
       const patchesPath = join(this.PATHS.XIVAPI_LOCAL, 'src\\Service\\GamePatch\\resources', 'patchlist.json');
       const patchesStr = readFileSync(patchesPath, 'utf-8');
       const patches = JSON.parse(patchesStr);
+      if (patches.some(p => p.Verion === version)) {
+        reply(false);
+      }
       const lastPatch = patches[patches.length - 1];
       const releaseDate = new Date();
       releaseDate.setUTCHours(10);
@@ -180,7 +184,7 @@ export class ToolsService {
       this.newPatch = newPatch;
       patches.push(newPatch);
       writeFileSync(patchesPath, JSON.stringify(patches, null, 4));
-      reply();
+      reply(true);
     });
 
     this.buildListener('UPDATE:patches-repo', (reply) => {
@@ -279,7 +283,12 @@ export class ToolsService {
       const allDefinitions = readdirSync(definitionsPath)
         .filter(file => file.endsWith('.json'))
         .filter(file => {
-          return JSON.parse(readFileSync(join(definitionsPath, file), 'utf-8')).definitions.length > 0;
+          try {
+            return JSON.parse(readFileSync(join(definitionsPath, file), 'utf-8')).definitions.length > 0;
+          } catch (e) {
+            console.error(file);
+            throw e;
+          }
         })
         .map(file => file.replace('.json', ''))
         .filter(def => {
@@ -295,38 +304,36 @@ export class ToolsService {
       const todo = allDefinitions.length;
       let workers = [];
 
-      // from(allDefinitions).pipe(
-      //   mergeMap((definition) => {
-      //     workers.push(definition);
-      //     stdout({
-      //       done,
-      //       todo,
-      //       workers
-      //     });
-      //     return defer(() => from(
-      //       ToolsService.XIVAPI_SSH.exec(`php`,
-      //         [this.PATHS.DALAMUD_SYMFONY_CONSOLE, 'SaintCoinachRedisCommand', `--content=${definition}`, '-q'],
-      //         {
-      //           cwd: this.PATHS.XIVAPI_HOME,
-      //           stream: 'both',
-      //           onStderr: (out) => console.log('ERR:', out.toString())
-      //         })
-      //     )).pipe(
-      //       map(() => {
-      //         done++;
-      //         workers = workers.filter(w => w !== definition);
-      //         stdout({
-      //           done,
-      //           todo,
-      //           workers
-      //         });
-      //       })
-      //     );
-      //   }, WORKERS_POOL_SIZE),
-      //   last()
-      // )
-
-      of(1).subscribe(async () => {
+      from(allDefinitions).pipe(
+        mergeMap((definition) => {
+          workers.push(definition);
+          stdout({
+            done,
+            todo,
+            workers
+          });
+          return defer(() => from(
+            ToolsService.XIVAPI_SSH.exec(`php`,
+              [this.PATHS.DALAMUD_SYMFONY_CONSOLE, 'SaintCoinachRedisCommand', `--content=${definition}`, '-q'],
+              {
+                cwd: this.PATHS.XIVAPI_HOME,
+                stream: 'both',
+                onStderr: (out) => console.log('ERR:', out.toString())
+              })
+          )).pipe(
+            map(() => {
+              done++;
+              workers = workers.filter(w => w !== definition);
+              stdout({
+                done,
+                todo,
+                workers
+              });
+            })
+          );
+        }, WORKERS_POOL_SIZE),
+        last()
+      ).subscribe(async () => {
         const customRunners = readdirSync(join(this.PATHS.XIVAPI_LOCAL, 'src/Service/DataCustom'));
         const runnersToRun = customRunners
           .filter(file => file.endsWith('.php'))

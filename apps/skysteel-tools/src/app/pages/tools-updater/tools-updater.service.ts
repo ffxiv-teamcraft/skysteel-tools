@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { intervalToDuration } from 'date-fns';
-import { merge, Observable, Subject } from 'rxjs';
+import { merge, Observable, of, Subject } from 'rxjs';
 import { scan, startWith, switchMap, tap } from 'rxjs/operators';
 import { IpcService } from '../../core/ipc.service';
 import { initialUpdaterState } from './initial-updater-state';
@@ -35,26 +35,23 @@ export class ToolsUpdaterService {
   constructor(private ipc: IpcService) {
   }
 
-  public start(version: string): void {
-    // LGB stuff
-    // this.extractLGB().subscribe(() => {
-    // });
-
-    // XIVAPI Stuff
-
-    // TODO Extract, then zip and SCP to XIVAPI, plus patches repo update
-    // const exdOperations = this.extractAllRawExd().pipe(
-    //   switchMap(() => this.addPatchEntry(version)),
-    // );
-    // this.updateLocalSaint()
-    //   .pipe(
-    //     switchMap(() => {
-    //       return this.extractUI();
-    //     })
-    //   )
-    //   .subscribe();
-
-    this.runUpdater().subscribe();
+  public start(version: string, isContentUpdate = true): void {
+    if (isContentUpdate) {
+      this.extractLGB().pipe(
+        switchMap(() => this.updateLocalSaint()),
+        switchMap(() => this.extractAllRawExd()),
+        switchMap(() => this.extractUI()),
+        switchMap(() => this.addPatchEntry(version)),
+        switchMap(() => this.sendRawExd()),
+        switchMap(() => this.runUpdater())
+      ).subscribe();
+    } else {
+      this.updateLocalSaint().pipe(
+        switchMap(() => this.extractAllRawExd()),
+        switchMap(() => this.sendRawExd()),
+        switchMap(() => this.runUpdater())
+      ).subscribe();
+    }
   }
 
   public runUpdater(): Observable<void> {
@@ -123,17 +120,25 @@ export class ToolsUpdaterService {
   public addPatchEntry(version: string): Observable<void> {
     this.startStep('xivapi:datamining-patches');
     return this.ipc.exec('UPDATE:addPatchEntry', version).pipe(
-      tap(() => this.updateStep('xivapi:datamining-patches', {
-        description: 'Patchlist.json entry added'
-      })),
-      switchMap(() => {
-        return this.ipc.exec('UPDATE:patches-repo');
-      }),
-      switchMap(() => {
-        this.updateStep('xivapi:datamining-patches', {
-          description: 'Running ffxiv-datamining-repo build.php'
-        });
-        return this.ipc.exec('UPDATE:build-patches', version);
+      switchMap((result) => {
+        if (result) {
+          this.updateStep('xivapi:datamining-patches', {
+            description: 'Patchlist.json entry added'
+          });
+          return this.ipc.exec('UPDATE:patches-repo').pipe(
+            switchMap(() => {
+              this.updateStep('xivapi:datamining-patches', {
+                description: 'Running ffxiv-datamining-repo build.php'
+              });
+              return this.ipc.exec('UPDATE:build-patches', version);
+            })
+          );
+        } else {
+          this.updateStep('xivapi:datamining-patches', {
+            description: 'No need to add a patch'
+          });
+          return of(null);
+        }
       }),
       tap(() => this.finishStep('xivapi:datamining-patches'))
     );

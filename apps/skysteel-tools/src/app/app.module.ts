@@ -15,6 +15,8 @@ import { NzSpinModule } from 'ng-zorro-antd/spin';
 import { FlexLayoutModule } from '@angular/flex-layout';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzNotificationModule } from 'ng-zorro-antd/notification';
+import { StoreModule } from '@ngrx/store';
+import { EffectsModule } from '@ngrx/effects';
 
 registerLocaleData(en);
 
@@ -23,7 +25,7 @@ registerLocaleData(en);
   imports: [
     BrowserModule,
     CommonModule,
-    
+
     FormsModule,
     HttpClientModule,
     BrowserAnimationsModule,
@@ -34,7 +36,10 @@ registerLocaleData(en);
     NzSpinModule,
     FlexLayoutModule,
     NzButtonModule,
-    NzNotificationModule
+    NzNotificationModule,
+
+    StoreModule.forRoot({}),
+    EffectsModule.forRoot()
   ],
   bootstrap: [AppComponent],
   providers: [{ provide: NZ_I18N, useValue: en_US }]

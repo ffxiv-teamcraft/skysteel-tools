@@ -41,13 +41,14 @@ export class ToolsUpdaterComponent {
   updaterState$ = this.updaterService.state$;
 
   newVersion: string;
+  isContentUpdate = true;
 
   constructor(private ipc: IpcService, private message: NzMessageService, private http: HttpClient,
               private updaterService: ToolsUpdaterService) {
   }
 
   startUpdater(): void {
-    this.updaterService.start(this.newVersion);
+    this.updaterService.start(this.newVersion, this.isContentUpdate);
   }
 
   connectXIVAPI(): void {

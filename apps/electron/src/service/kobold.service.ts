@@ -21,13 +21,12 @@ export class KoboldService {
   private buildSheet(sheetName: string) {
     return class DynamicSheet extends Row {
       static sheet = sheetName;
-      columns = [];
       // Need to fork kobold/excel to make this work
-      // columns = new Array(this.sheetHeader.columns.length)
-      //   .fill(null)
-      //   .map((_, i) => {
-      //     return this.unknown({ column: i });
-      //   });
+      columns = new Array(this.sheetHeader.columns.length)
+        .fill(null)
+        .map((_, i) => {
+          return this.unknown({ column: i });
+        });
     };
   }
 
